@@ -6,10 +6,3 @@ flowchart TD
     C -->|connects| A
     D -->|connects| A
     E -->|connects| A
-
-    CC[Player 1 has word] <--> DD[P4 guesses]
-    CC <--> EE[P5 guesses]
-    CC <--> FF[P6 guesses]
-    DD <--> FF
-    DD <--> EE
-    EE <--> FF
