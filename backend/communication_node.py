@@ -30,7 +30,6 @@ async def main():
     port = 1999
     # list hosts & ports of other nodes
     other_nodes = [("host", 1999),("host", 1999)]
-    # for host, port in other_nodes:
     
     await asyncio.gather(
         listen_for_connections(host, port),
