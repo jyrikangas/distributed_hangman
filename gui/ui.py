@@ -132,7 +132,7 @@ class UI:
         print("Game started")
 
         while self.game_active:
-            communication.main()
+            await asyncio.sleep(0.001)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
@@ -142,6 +142,7 @@ class UI:
                         if button.collidepoint(clicked_position):
                             print("collision with letter:", letter)
                             GUESSED_LETTERS.append(letter)
+                            await communication.send_info(letter)
                             if letter not in WORD:
                                 game_status += 1
                             # implement game end here

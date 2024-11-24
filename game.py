@@ -6,7 +6,7 @@ from gui.ui import UI
 
 async def main():
     
-    await UI().game_loop(communication_node)
+    await asyncio.gather(communication_node.main(),UI().game_loop(communication_node))
     
 
 if __name__ == "__main__":
