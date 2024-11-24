@@ -59,6 +59,9 @@ def letter_text(letter):
     label = button_font.render(letter, True, BLACK)
     return label
 
+def guess_letter(letter):
+    GUESSED_LETTERS.append(letter)
+
 class UI:
     """ User interface for the game """
     def __init__(self):

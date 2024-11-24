@@ -1,8 +1,10 @@
 import asyncio
 import json
+from gui.ui import guess_letter
 
 
 OTHER_NODES = []
+
 
 async def send_info(information):
     for node in OTHER_NODES:
@@ -21,6 +23,13 @@ async def listen_for_connections(host, port):
 async def handle_client(reader, writer):
     while True:
         response = await reader.read(100)
+        decoded_json = response.decode()
+        if "Letter" in decoded_json:
+            decoded = json.loads(decoded_json)
+            guess_letter(decoded["Letter"])
+        else:
+            OTHER_NODES.append((reader, writer))
+
         addr = writer.get_extra_info('peername')
         print(f"Connection from {addr}")
         writer.write(b"Hello, client!\n")
