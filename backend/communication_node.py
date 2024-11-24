@@ -13,7 +13,7 @@ async def handle_client(reader, writer):
     await writer.drain()
     writer.close()
 
-async def initiate_connection(target_host, target_port):
+async def initiate_connection(target_host, target_port = "1999"):
     try:
         reader, writer = await asyncio.open_connection(target_host, target_port)
         print(f"Connected to {target_host}:{target_port}")
@@ -36,4 +36,5 @@ async def main():
         initiate_connection(host, port),
     )
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

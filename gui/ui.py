@@ -1,6 +1,7 @@
 import sys
 import random
 import pygame
+import asyncio
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -34,6 +35,9 @@ for index, box in enumerate(LETTER_BOXES):
     button = ([box, letter])
     LETTER_BUTTONS.append(button)
 
+INPUT_IP = pygame.Rect(200, 200, 140, 32) 
+IP = ''
+
 def create_game_board():
     """ Creating game board when game starts """
     board = [0]
@@ -62,6 +66,7 @@ class UI:
         self.game_active = True
         self.screen = pygame.display.set_mode(BOARD_SIZE)
         pygame.display.set_caption("Distributed Hangman")
+        
     
     def draw_board(self, board):
         """ Drawing the game board in pygame window """
@@ -73,6 +78,26 @@ class UI:
         start_text = "DISTRIBUTED HANGMAN"
         text = text_font.render(start_text, 0, RED)
         self.screen.blit(text, (200, 15))
+
+    def join_game_input(self, INPUT_IP, IP="", active=False):
+        text_font = pygame.font.Font(pygame.font.get_default_font(), 40)
+
+        color_active = pygame.Color('lightskyblue3') 
+
+        color_passive = pygame.Color('chartreuse4') 
+        if active:
+            color = color_active
+        else:
+            color = color_passive
+
+        text = text_font.render(IP, True, BLACK)
+        pygame.draw.rect(self.screen, color, INPUT_IP) 
+        INPUT_IP.w = max(100, text.get_width()+10) 
+        
+        self.screen.blit(text,INPUT_IP)
+        
+
+
 
     def draw_letter_buttons(self, LETTER_BUTTONS):
         for button, letter in LETTER_BUTTONS:
@@ -91,7 +116,7 @@ class UI:
         text = letter_text(word)
         self.screen.blit(text, (500, 500))
 
-    def game_loop(self):
+    async def game_loop(self, communication):
         """ Game loop """
         turn = random.choice([1, 2, 3, 4])
         print("starting player:", turn)
@@ -101,10 +126,13 @@ class UI:
         self.screen.blit(game_start_text(turn), (200, 15))
         self.draw_board(self.board)
         pygame.display.update()
-
+        IP= ""
+        active = False
+        
         print("Game started")
 
         while self.game_active:
+            communication.main()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
@@ -118,9 +146,27 @@ class UI:
                                 game_status += 1
                             # implement game end here
                             LETTER_BUTTONS.remove([button, letter])
+
+                    if INPUT_IP.collidepoint(event.pos): 
+                        active = True
+                    else: 
+                        active = False
+
+                if event.type == pygame.KEYDOWN: 
+                    if event.key == pygame.K_BACKSPACE: 
+                        IP = IP[:-1]
+                    elif event.key == pygame.K_RETURN:
+                        print(f"enter {IP}")
+
+                        await communication.initiate_connection(IP)
+                        
+                    else: 
+                        IP += event.unicode
                 #self.screen.blit(IMAGES[game_status], (x, y))  # images for different stages of the game
             self.screen.fill(WHITE)
             self.window_top_text()
+
             self.display_word()
             self.draw_letter_buttons(LETTER_BUTTONS)
+            self.join_game_input(INPUT_IP, IP, active)
             pygame.display.update()
