@@ -1,6 +1,5 @@
 import asyncio
 import json
-from gui.ui import guess_letter
 
 
 OTHER_NODES = []
@@ -26,7 +25,7 @@ async def handle_client(reader, writer):
         decoded_json = response.decode()
         if "Letter" in decoded_json:
             decoded = json.loads(decoded_json)
-            guess_letter(decoded["Letter"])
+            game.guess_letter(decoded["Letter"])
         else:
             OTHER_NODES.append((reader, writer))
 
@@ -48,8 +47,10 @@ async def initiate_connection(target_host, target_port = "1999"):
     except Exception as e:
         print(f"Failed to connect: {e}")
 
-async def main():
-    host = "192.168.68.106"
+async def main(gameinst):
+    global game
+    game = gameinst
+    host = "127.0.0.1"
     port = 1999
     # list hosts & ports of other nodes
     other_nodes = [("host", 1999),("host", 1999)]
@@ -59,6 +60,3 @@ async def main():
         initiate_connection(host, port),
     )
 
-
-if __name__ == "__main__":
-    asyncio.run(main())

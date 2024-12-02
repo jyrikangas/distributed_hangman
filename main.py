@@ -3,10 +3,10 @@ from backend import communication_node
 import asyncio
 
 from gui.ui import UI
-
+from backend.game import Game
 async def main():
-    
-    await asyncio.gather(communication_node.main(),UI().game_loop(communication_node))
+    game = Game()
+    await asyncio.gather(communication_node.main(game),UI().game_loop(communication_node, game))
     
 
 if __name__ == "__main__":

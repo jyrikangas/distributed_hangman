@@ -11,11 +11,8 @@ RED = (255, 0, 0)
 
 BOARD_SIZE = (950, 750)
 
-WORD = "DISTRIBUTED HANGMAN"  # change this into a list with more items
-GUESSED_LETTERS = []
-
 IMAGES = []
-game_status = 0
+#game_status = 0
 '''for i in range(7):
     image = pygame.image.load((f'assets/hangman{i}.png'))
     IMAGES.append(image)'''
@@ -59,13 +56,12 @@ def letter_text(letter):
     label = button_font.render(letter, True, BLACK)
     return label
 
-def guess_letter(letter):
-    GUESSED_LETTERS.append(letter)
+
 
 class UI:
     """ User interface for the game """
     def __init__(self):
-        self.board = create_game_board()
+        self.board = [0]
         self.game_active = True
         self.screen = pygame.display.set_mode(BOARD_SIZE)
         pygame.display.set_caption("Distributed Hangman")
@@ -109,18 +105,19 @@ class UI:
             pygame.draw.rect(self.screen, BLACK, button, 2)
             self.screen.blit(button_text, button_text_rect)
 
-    def display_word(self):
+    def display_word(self, game):
         word = ""
-        for letter in WORD:
-            if letter in GUESSED_LETTERS:
+        for letter in game.get_word():
+            if letter in game.get_guessed_letters():
                 word += f"{letter}"
             else:
                 word += "_ "
         text = letter_text(word)
         self.screen.blit(text, (500, 500))
 
-    async def game_loop(self, communication):
+    async def game_loop(self, communication, game):
         """ Game loop """
+        
         turn = random.choice([1, 2, 3, 4])
         print("starting player:", turn)
         print_board_in_console()  #(self.board)
@@ -144,12 +141,18 @@ class UI:
                     for button, letter in LETTER_BUTTONS:
                         if button.collidepoint(clicked_position):
                             print("collision with letter:", letter)
+                            # kutsu game.guess letter. palauttaa true/false
+                            game.guess_letter(letter)
+                            """ 
                             GUESSED_LETTERS.append(letter)
                             await communication.send_info(letter)
                             if letter not in WORD:
                                 game_status += 1
                             # implement game end here
+                            """
+                            # jos true, tee jotain napille
                             LETTER_BUTTONS.remove([button, letter])
+                            
 
                     if INPUT_IP.collidepoint(event.pos): 
                         active = True
@@ -170,7 +173,7 @@ class UI:
             self.screen.fill(WHITE)
             self.window_top_text()
 
-            self.display_word()
+            self.display_word(game)
             self.draw_letter_buttons(LETTER_BUTTONS)
             self.join_game_input(INPUT_IP, IP, active)
             pygame.display.update()
