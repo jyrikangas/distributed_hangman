@@ -143,9 +143,10 @@ class UI:
                             print("collision with letter:", letter)
                             # kutsu game.guess letter. palauttaa true/false
                             game.guess_letter(letter)
+                            await communication.guess(letter)
                             """ 
                             GUESSED_LETTERS.append(letter)
-                            await communication.send_info(letter)
+                            
                             if letter not in WORD:
                                 game_status += 1
                             # implement game end here

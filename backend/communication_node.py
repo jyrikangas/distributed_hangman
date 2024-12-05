@@ -4,10 +4,13 @@ import json
 
 OTHER_NODES = []
 
+async def guess(letter):
+    send_info({'Letter': letter})
+
 
 async def send_info(information):
     for node in OTHER_NODES:
-        data = json.dumps({"Letter": information})
+        data = json.dumps(information)
         node[1].write(data.encode())
         await node[1].drain()
         response = await node[0].read(100)
@@ -50,7 +53,7 @@ async def initiate_connection(target_host, target_port = "1999"):
 async def main(gameinst):
     global game
     game = gameinst
-    host = "127.0.0.1"
+    host = "192.168.68.106"
     port = 1999
     # list hosts & ports of other nodes
     other_nodes = [("host", 1999),("host", 1999)]
