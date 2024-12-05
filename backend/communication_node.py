@@ -35,7 +35,7 @@ async def handle_client(reader, writer):
         addr = writer.get_extra_info('peername')
         print(f"Connection from {addr}")
         writer.write(b"Hello, client!\n")
-        send_info(game.__dict__)
+        await send_info(game.as_JSON())
         await writer.drain()
     
 
@@ -56,7 +56,7 @@ async def main(gameinst):
     game = gameinst
     host = "0.0.0.0"
     port = 1999
-    
+    print(game.as_JSON())
     game.add_player(Player(host, 1))
     await listen_for_connections(host, port)
     

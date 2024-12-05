@@ -39,4 +39,16 @@ class Game:
     
     def add_player(self, player : Player):
         self.players.append(player)
+        
+    def as_JSON(self):
+        return {
+            "guessed_letters": self.guessed_letters,
+            "game_status": self.game_status,
+            "WORD": self.WORD,
+            "board": self.board,
+            "round": self.round,
+            "turnorder": self.turnorder,
+            "turn": self.turn,
+            "players": [player.__dict__ for player in self.players]
+        }
 
