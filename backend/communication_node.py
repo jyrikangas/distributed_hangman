@@ -47,6 +47,8 @@ async def initiate_connection(target_host, target_port = "1999"):
         await writer.drain()
         response = await reader.read(100)
         print(f"Received from server {target_host}: {response.decode()}")
+        #TODO: decode game object and replace the current game object
+        
         OTHER_NODES.append((reader,writer))
     except Exception as e:
         print(f"Failed to connect: {e}")
