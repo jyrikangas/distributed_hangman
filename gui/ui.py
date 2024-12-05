@@ -2,6 +2,7 @@ import sys
 import random
 import pygame
 import asyncio
+from objects.player import Player
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -167,6 +168,8 @@ class UI:
                         print(f"enter {IP}")
 
                         await communication.initiate_connection(IP)
+                        #TODO: handle error!
+                        game.add_player(Player(IP, len(game.players) + 1))
                         
                     else: 
                         IP += event.unicode

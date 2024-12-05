@@ -1,9 +1,9 @@
 import asyncio
 import json
-
+from objects.player import Player
 
 OTHER_NODES = []
-
+game = None
 async def guess(letter):
     await send_info({'Letter': letter})
 
@@ -53,13 +53,10 @@ async def initiate_connection(target_host, target_port = "1999"):
 async def main(gameinst):
     global game
     game = gameinst
-    host = "192.168.68.106"
+    host = "0.0.0.0"
     port = 1999
-    # list hosts & ports of other nodes
-    other_nodes = [("host", 1999),("host", 1999)]
     
-    await asyncio.gather(
-        listen_for_connections(host, port),
-        initiate_connection(host, port),
-    )
+    game.add_player(Player(host, 1))
+    await listen_for_connections(host, port)
+    
 

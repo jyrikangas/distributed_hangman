@@ -3,7 +3,9 @@ from backend import communication_node
 import asyncio
 
 from gui.ui import UI
-from backend.game import Game
+from objects.game import Game
+
+
 async def main():
     game = Game()
     await asyncio.gather(communication_node.main(game),UI().game_loop(communication_node, game))
