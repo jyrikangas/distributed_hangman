@@ -5,7 +5,7 @@ import json
 OTHER_NODES = []
 
 async def guess(letter):
-    send_info({'Letter': letter})
+    await send_info({'Letter': letter})
 
 
 async def send_info(information):
