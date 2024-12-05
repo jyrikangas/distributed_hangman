@@ -140,18 +140,12 @@ class UI:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     clicked_position = event.pos
                     for button, letter in LETTER_BUTTONS:
-                        if button.collidepoint(clicked_position):
+                        if (button.collidepoint(clicked_position) and (game.turnorder[game.turnorder[game.turn]] == 1)):
                             print("collision with letter:", letter)
                             # kutsu game.guess letter. palauttaa true/false
                             game.guess_letter(letter)
                             await communication.guess(letter)
-                            """ 
-                            GUESSED_LETTERS.append(letter)
                             
-                            if letter not in WORD:
-                                game_status += 1
-                            # implement game end here
-                            """
                             # jos true, tee jotain napille
                             LETTER_BUTTONS.remove([button, letter])
                             

@@ -35,6 +35,7 @@ async def handle_client(reader, writer):
         addr = writer.get_extra_info('peername')
         print(f"Connection from {addr}")
         writer.write(b"Hello, client!\n")
+        send_info(game.__dict__)
         await writer.drain()
     
 

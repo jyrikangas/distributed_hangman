@@ -4,16 +4,25 @@ class Game:
     def __init__(self):
         self.guessed_letters = []
         self.game_status = 0
-        self.WORD = "DISTRIBUTED HANGMAN"  # change this into a list with more items
+        self.WORD = "DISTRIBUTED HANGMAN"  # This should be changed at the start of the game
         self.board = [0]
-        # which turn / how many guesses made
-        self.turn = 0
+        # which round / how many guesses made
+        self.round = 0
         # turn order as a list of player ids
         self.turnorder = []
+        self.turn = 0
         self.players = []
         
     def guess_letter(self, letter):
         self.guessed_letters.append(letter)
+        
+        #increment game state
+        self.round += 1
+        self.turn += 1
+        if self.turn == len(self.players):
+            self.turn = 0
+        print(f"round {self.round}: Player {self.turn} guessed {letter}")
+        
     
     def get_word(self):
         return self.WORD
