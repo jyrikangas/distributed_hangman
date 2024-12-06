@@ -1,5 +1,5 @@
 1) state
-	- fisishing state (sami)
+	- finishing state (sami)
 3) Synchronization and consistency 
 	- turns (jyri)
 2) Consensus
