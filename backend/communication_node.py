@@ -44,6 +44,8 @@ async def handle_client(reader, writer):
             game.guess_letter(decoded["Letter"])
             writer.write(b"OK\n")
             await writer.drain()
+        if "OK" in decoded_json:
+            print("OK")
         else:
             OTHER_NODES.append((reader, writer))
             addr = writer.get_extra_info('peername')
@@ -53,6 +55,7 @@ async def handle_client(reader, writer):
             await writer.drain()
             response = await reader.readline()
             print(response.decode())
+            game.add_player(Player(addr,len(game.get_players())+1))
 
     
 
@@ -67,14 +70,28 @@ async def initiate_connection(target_host, target_port = "1999"):
         #TODO: decode game object and replace the current game object
         writer.write(b'OK\n')
         tasks.append(asyncio.create_task(handle_client(reader, writer)))
-        
+        decoded_json = response.decode()
+        decoded = json.loads(decoded_json)
+        ips = []
+        for player in game.get_players():
+            ips.append(player.get_ip())
+        for player in decoded["players"]:
+            if player["ip"] == target_host:
+                game.add_player(Player(target_host,player["id"]))
+                ips.append(target_host)
+            if player["ip"] not in ips:
+
+                game.add_player(Player(player["ip"],player["id"]))
+                await initiate_connection(player["ip"])
+
+            print(player)
     except Exception as e:
         print(f"Failed to connect: {e}")
 
 async def main(gameinst):
     global game
     game = gameinst
-    host = "192.168.68.105"
+    host = "192.168.68.106"
     port = 1999
     print(game.as_JSON())
     game.add_player(Player(host, 1))

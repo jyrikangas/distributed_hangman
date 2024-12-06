@@ -52,5 +52,5 @@ class Game:
             "players": [player.__dict__ for player in self.players]
         }
 
-    def get_pleyers(self):
+    def get_players(self):
         return self.players
