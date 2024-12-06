@@ -46,7 +46,11 @@ async def handle_client(reader, writer):
             await writer.drain()
         if "OK" in decoded_json:
             print("OK")
-        else:
+        if "board" in decoded_json:
+            print("State")
+        if "Hello" in decoded_json:
+            print("Miksi täällä", response)
+            print(response)
             OTHER_NODES.append((reader, writer))
             addr = writer.get_extra_info('peername')
             print(f"Connection from {addr}")
@@ -84,7 +88,8 @@ async def initiate_connection(target_host, target_port = "1999"):
 
                 game.add_player(Player(player["ip"],player["id"]))
                 await initiate_connection(player["ip"])
-
+        for letter in decoded["guessed_letters"]:
+            game.guess_letter(letter)
             print(player)
     except Exception as e:
         print(f"Failed to connect: {e}")
