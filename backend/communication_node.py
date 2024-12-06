@@ -4,9 +4,16 @@ from objects.player import Player
 
 OTHER_NODES = []
 game = None
+
+async def state():
+    await send_info(game.as_JSON())
+
+async def players():
+    info = game.get_players()
+    await send_info({'Players': info})
+
 async def guess(letter):
     await send_info({'Letter': letter})
-
 
 async def send_info(information):
     for node in OTHER_NODES:
@@ -29,14 +36,15 @@ async def handle_client(reader, writer):
         if "Letter" in decoded_json:
             decoded = json.loads(decoded_json)
             game.guess_letter(decoded["Letter"])
+            writer.write(b"OK")
+            await writer.drain()
         else:
             OTHER_NODES.append((reader, writer))
+            addr = writer.get_extra_info('peername')
+            print(f"Connection from {addr}")
+            await send_info(game.as_JSON())
 
-        addr = writer.get_extra_info('peername')
-        print(f"Connection from {addr}")
-        writer.write(b"Hello, client!\n")
-        await send_info(game.as_JSON())
-        await writer.drain()
+
     
 
 async def initiate_connection(target_host, target_port = "1999"):
