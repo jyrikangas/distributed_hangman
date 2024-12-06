@@ -35,7 +35,6 @@ async def listen_for_connections(host, port):
 async def handle_client(reader, writer):
 
     while True:
-        print("TESTI")
         response = await reader.readline()
         decoded_json = response.decode()
         print(decoded_json)
@@ -49,8 +48,6 @@ async def handle_client(reader, writer):
         if "board" in decoded_json:
             print("State")
         if "Hello" in decoded_json:
-            print("Miksi täällä", response)
-            print(response)
             OTHER_NODES.append((reader, writer))
             addr = writer.get_extra_info('peername')
             print(f"Connection from {addr}")
