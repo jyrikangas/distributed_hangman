@@ -3,6 +3,7 @@ import json
 from objects.player import Player
 
 OTHER_NODES = []
+tasks = []
 game = None
 
 async def state():
@@ -21,8 +22,9 @@ async def send_info(information):
         data = json.dumps(information)
         node[1].write(f'{data}\n'.encode())
         await node[1].drain()
-        response = await node[0].readline()
-        print(response.decode())
+        #response = await node[0].readline()
+        #print(response.decode())
+
 
 async def listen_for_connections(host, port):
     server = await asyncio.start_server(handle_client, host, port)
@@ -31,7 +33,9 @@ async def listen_for_connections(host, port):
         await server.serve_forever()
 
 async def handle_client(reader, writer):
+
     while True:
+        print("TESTI")
         response = await reader.readline()
         decoded_json = response.decode()
         print(decoded_json)
@@ -58,21 +62,22 @@ async def initiate_connection(target_host, target_port = "1999"):
         print(f"Connected to {target_host}:{target_port}")
         writer.write(b"Hello, server!\n")
         await writer.drain()
-        response = await reader.read(100)
+        response = await reader.readline()
         print(f"Received from server {target_host}: {response.decode()}")
         #TODO: decode game object and replace the current game object
         writer.write(b'OK\n')
-        OTHER_NODES.append((reader,writer))
+        tasks.append(asyncio.create_task(handle_client(reader, writer)))
+        
     except Exception as e:
         print(f"Failed to connect: {e}")
 
 async def main(gameinst):
     global game
     game = gameinst
-    host = "192.168.68.106"
+    host = "192.168.68.105"
     port = 1999
     print(game.as_JSON())
     game.add_player(Player(host, 1))
-    await listen_for_connections(host, port)
+    await asyncio.gather(listen_for_connections(host, port), *tasks)
     
 
