@@ -55,7 +55,7 @@ async def handle_client(reader, writer):
             await writer.drain()
             response = await reader.readline()
             print(response.decode())
-            game.add_player(Player(addr,len(game.get_players())+1))
+            game.add_player(Player(addr[0],len(game.get_players())+1))
 
     
 
@@ -68,6 +68,7 @@ async def initiate_connection(target_host, target_port = "1999"):
         response = await reader.readline()
         print(f"Received from server {target_host}: {response.decode()}")
         #TODO: decode game object and replace the current game object
+        OTHER_NODES.append((reader, writer))
         writer.write(b'OK\n')
         tasks.append(asyncio.create_task(handle_client(reader, writer)))
         decoded_json = response.decode()
@@ -91,7 +92,7 @@ async def initiate_connection(target_host, target_port = "1999"):
 async def main(gameinst):
     global game
     game = gameinst
-    host = "192.168.68.106"
+    host = "192.168.68.105"
     port = 1999
     print(game.as_JSON())
     game.add_player(Player(host, 1))
