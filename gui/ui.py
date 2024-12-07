@@ -105,6 +105,12 @@ class UI:
             pygame.draw.rect(self.screen, BLACK, button, 2)
             self.screen.blit(button_text, button_text_rect)
 
+    def display_wrong_guesses(self, image_index):
+        text_font = pygame.font.Font(pygame.font.get_default_font(), 20)
+        text = f"Wrong guesses: {image_index}/6"
+        label = text_font.render(text, 0, BLACK)
+        self.screen.blit(label, (500, 300))
+
     def display_word(self, game):
         word = ""
         for letter in game.get_word():
@@ -141,10 +147,8 @@ class UI:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     clicked_position = event.pos
-                    # image_index += 1  # uncomment to see the images change
                     for button, letter in LETTER_BUTTONS:
                         if (button.collidepoint(clicked_position)): #  and (game.turnorder[game.turnorder[game.turn]] == 1)):
-                            print("collision with letter:", letter)
                             # kutsu game.guess letter. palauttaa true/false
                             correct_guess = game.guess_letter(letter)  # return True / False
                             print("correct_guess:", correct_guess)
@@ -179,6 +183,7 @@ class UI:
             self.window_top_text()
             self.screen.blit(IMAGES[image_index], (50, 140))  # replace image_index with game_state variable
 
+            self.display_wrong_guesses(image_index)
             self.display_word(game)
             self.draw_letter_buttons(LETTER_BUTTONS)
             self.join_game_input(INPUT_IP, IP, active)
