@@ -1,4 +1,5 @@
-# start the game by writing in console: python3 game.py
+# start the game by writing in console: python3 main.py
+
 from backend import communication_node
 import asyncio
 

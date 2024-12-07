@@ -4,7 +4,8 @@ class Game:
     def __init__(self):
         self.guessed_letters = []
         self.game_status = 0
-        self.WORD = "DISTRIBUTED HANGMAN"  # This should be changed at the start of the game
+        # self.wordlist = ["DISTRIBUTED HANGMAN", "UNIVERSITY OF HELSINKI", "SUOMI FINLAND"]
+        self.WORD = "DISTRIBUTED HANGMAN"  # e.g. self.wordlist[random.randint(0,2)]
         self.board = [0]
         # which round / how many guesses made
         self.round = 0

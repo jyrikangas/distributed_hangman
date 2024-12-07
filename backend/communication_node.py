@@ -94,7 +94,7 @@ async def initiate_connection(target_host, target_port = "1999"):
 async def main(gameinst):
     global game
     game = gameinst
-    host = "192.168.68.105"
+    host = "192.168.1.111"
     port = 1999
     print(game.as_JSON())
     game.add_player(Player(host, 1))

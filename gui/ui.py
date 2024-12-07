@@ -13,10 +13,9 @@ RED = (255, 0, 0)
 BOARD_SIZE = (950, 750)
 
 IMAGES = []
-#game_status = 0
-'''for i in range(7):
-    image = pygame.image.load((f'assets/hangman{i}.png'))
-    IMAGES.append(image)'''
+for i in range(8):
+    image = pygame.image.load((f'assets/hangman_image_{i}.jpg'))
+    IMAGES.append(image)
 
 LETTER_BOXES = []
 for row in range(2):
@@ -33,7 +32,7 @@ for index, box in enumerate(LETTER_BOXES):
     button = ([box, letter])
     LETTER_BUTTONS.append(button)
 
-INPUT_IP = pygame.Rect(200, 200, 140, 32) 
+INPUT_IP = pygame.Rect(500, 200, 140, 32) 
 IP = ''
 
 def create_game_board():
@@ -111,6 +110,8 @@ class UI:
         for letter in game.get_word():
             if letter in game.get_guessed_letters():
                 word += f"{letter}"
+            elif letter == " ":
+                word += "  "
             else:
                 word += "_ "
         text = letter_text(word)
@@ -129,6 +130,7 @@ class UI:
         pygame.display.update()
         IP= ""
         active = False
+        image_index = 0  # remove this variable when game_state implemented
         
         print("Game started")
 
@@ -139,6 +141,7 @@ class UI:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     clicked_position = event.pos
+                    # image_index += 1  # uncomment to see the images change
                     for button, letter in LETTER_BUTTONS:
                         if (button.collidepoint(clicked_position)): #  and (game.turnorder[game.turnorder[game.turn]] == 1)):
                             print("collision with letter:", letter)
@@ -170,6 +173,7 @@ class UI:
                 #self.screen.blit(IMAGES[game_status], (x, y))  # images for different stages of the game
             self.screen.fill(WHITE)
             self.window_top_text()
+            self.screen.blit(IMAGES[image_index], (50, 140))  # replace image_index with game_state variable
 
             self.display_word(game)
             self.draw_letter_buttons(LETTER_BUTTONS)
