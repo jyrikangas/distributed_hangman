@@ -1,5 +1,6 @@
 import random
 from objects.player import Player
+
 class Game:
     def __init__(self):
         self.guessed_letters = []
@@ -23,6 +24,9 @@ class Game:
         if self.turn == len(self.players):
             self.turn = 0
         print(f"round {self.round}: Player {self.turn} guessed {letter}")
+        if letter in self.WORD:
+            return True
+        return False
         
     
     def get_word(self):

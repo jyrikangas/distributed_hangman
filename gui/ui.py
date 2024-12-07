@@ -146,10 +146,14 @@ class UI:
                         if (button.collidepoint(clicked_position)): #  and (game.turnorder[game.turnorder[game.turn]] == 1)):
                             print("collision with letter:", letter)
                             # kutsu game.guess letter. palauttaa true/false
-                            game.guess_letter(letter)
+                            correct_guess = game.guess_letter(letter)  # return True / False
+                            print("correct_guess:", correct_guess)
+                            if correct_guess == False:  # False changes hangman image
+                                image_index += 1
+                            # if image_index/state is 6, end the game
                             await communication.guess(letter)
                             
-                            # jos true, tee jotain napille
+                            # jos true, tee jotain napille - no need to change button?
                             LETTER_BUTTONS.remove([button, letter])
                             
 
@@ -170,7 +174,7 @@ class UI:
                         
                     else: 
                         IP += event.unicode
-                #self.screen.blit(IMAGES[game_status], (x, y))  # images for different stages of the game
+
             self.screen.fill(WHITE)
             self.window_top_text()
             self.screen.blit(IMAGES[image_index], (50, 140))  # replace image_index with game_state variable

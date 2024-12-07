@@ -1,7 +1,7 @@
 # distributed_hangman
 
 ### Starting the game
-Start the game in gui folder with command:
+Start the game with command:
 ```bash
-python3 game.py
+python3 main.py
 ```
