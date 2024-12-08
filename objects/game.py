@@ -1,5 +1,6 @@
 import random
 from objects.player import Player
+from gui.ui import LETTER_BUTTONS
 
 class Game:
     def __init__(self):
@@ -24,6 +25,10 @@ class Game:
         if self.turn == len(self.players):
             self.turn = 0
         print(f"round {self.round}: Player {self.turn} guessed {letter}")
+        for index, item in enumerate(LETTER_BUTTONS):
+            if letter == item[1]:
+                del LETTER_BUTTONS[index]
+                break
         if letter in self.WORD:
             return True
         self.game_status += 1

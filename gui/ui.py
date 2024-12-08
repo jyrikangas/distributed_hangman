@@ -171,7 +171,7 @@ class UI:
                             await communication.guess(letter)
                             
                             # jos true, tee jotain napille - no need to change button?
-                            LETTER_BUTTONS.remove([button, letter])
+                            #LETTER_BUTTONS.remove([button, letter])
                             
 
                     if INPUT_IP.collidepoint(event.pos): 
@@ -194,7 +194,7 @@ class UI:
 
             self.screen.fill(WHITE)
             self.window_top_text()
-            self.screen.blit(IMAGES[game.game_status], (50, 140))  # replace image_index with game_state variable
+            self.screen.blit(IMAGES[game.game_status], (50, 140))
 
             self.display_wrong_guesses(game.game_status)
             self.display_word(game)
