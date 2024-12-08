@@ -37,7 +37,7 @@ async def handle_client(reader, writer):
     while True:
         response = await reader.readline()
         decoded_json = response.decode()
-        print(decoded_json)
+        print("decoded_json:", decoded_json)
         if "Letter" in decoded_json:
             decoded = json.loads(decoded_json)
             game.guess_letter(decoded["Letter"])

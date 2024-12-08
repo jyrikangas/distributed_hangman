@@ -26,6 +26,7 @@ class Game:
         print(f"round {self.round}: Player {self.turn} guessed {letter}")
         if letter in self.WORD:
             return True
+        self.game_status += 1
         return False
         
     

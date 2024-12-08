@@ -136,7 +136,6 @@ class UI:
         pygame.display.update()
         IP= ""
         active = False
-        image_index = 0  # remove this variable when game_state implemented
         
         print("Game started")
 
@@ -152,9 +151,7 @@ class UI:
                             # kutsu game.guess letter. palauttaa true/false
                             correct_guess = game.guess_letter(letter)  # return True / False
                             print("correct_guess:", correct_guess)
-                            if correct_guess == False:  # False changes hangman image
-                                image_index += 1
-                            # if image_index/state is 6, end the game
+                            # if game.game_state is 6, end the game
                             await communication.guess(letter)
                             
                             # jos true, tee jotain napille - no need to change button?
@@ -181,9 +178,9 @@ class UI:
 
             self.screen.fill(WHITE)
             self.window_top_text()
-            self.screen.blit(IMAGES[image_index], (50, 140))  # replace image_index with game_state variable
+            self.screen.blit(IMAGES[game.game_status], (50, 140))  # replace image_index with game_state variable
 
-            self.display_wrong_guesses(image_index)
+            self.display_wrong_guesses(game.game_status)
             self.display_word(game)
             self.draw_letter_buttons(LETTER_BUTTONS)
             self.join_game_input(INPUT_IP, IP, active)
