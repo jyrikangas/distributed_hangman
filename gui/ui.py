@@ -1,6 +1,7 @@
 import sys
 import random
 import pygame
+import time
 import asyncio
 from objects.player import Player
 
@@ -106,10 +107,21 @@ class UI:
             self.screen.blit(button_text, button_text_rect)
 
     def display_wrong_guesses(self, image_index):
+        if image_index > 6:
+            image_index = 6
         text_font = pygame.font.Font(pygame.font.get_default_font(), 20)
         text = f"Wrong guesses: {image_index}/6"
         label = text_font.render(text, 0, BLACK)
         self.screen.blit(label, (500, 300))
+
+    def draw_game_over_text(self):
+        print("drawing game over text")
+        text_font = pygame.font.Font(pygame.font.get_default_font(), 60)
+        text = "GAME OVER"
+        label = text_font.render(text, 0, RED)
+        self.screen.blit(label, (500, 400))
+        pygame.display.update()
+        time.sleep(5)
 
     def display_word(self, game):
         word = ""
@@ -141,6 +153,10 @@ class UI:
 
         while self.game_active:
             await asyncio.sleep(0.001)
+            if game.game_status == 6:
+                print("game_status is 6, game over")
+                self.draw_game_over_text()
+                game.game_status += 1
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
@@ -151,7 +167,7 @@ class UI:
                             # kutsu game.guess letter. palauttaa true/false
                             correct_guess = game.guess_letter(letter)  # return True / False
                             print("correct_guess:", correct_guess)
-                            # if game.game_state is 6, end the game
+                            # TODO: if game.game_state is 6, end the game
                             await communication.guess(letter)
                             
                             # jos true, tee jotain napille - no need to change button?
