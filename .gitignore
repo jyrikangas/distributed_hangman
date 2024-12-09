@@ -5,3 +5,4 @@ gui/__pycache__*
 backend/__pycache__*
 .ds*
 objects/__pycache__*
+.env

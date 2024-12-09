@@ -1,6 +1,12 @@
 import asyncio
 import json
+
+import os
+from dotenv import load_dotenv
+
+
 from objects.player import Player
+load_dotenv()
 
 OTHER_NODES = []
 tasks = []
@@ -94,7 +100,7 @@ async def initiate_connection(target_host, target_port = "1999"):
 async def main(gameinst):
     global game
     game = gameinst
-    host = "192.168.1.111"
+    host = os.getenv('HOST')
     port = 1999
     print(game.as_JSON())
     game.add_player(Player(host, 1))
