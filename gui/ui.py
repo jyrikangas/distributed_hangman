@@ -36,27 +36,18 @@ for index, box in enumerate(LETTER_BOXES):
 INPUT_IP = pygame.Rect(500, 200, 140, 32) 
 IP = ''
 
-def create_game_board():
-    """ Creating game board when game starts """
-    board = [0]
-    return board
-
-def print_board_in_console():
-    """ Printing the game state in console """
-    print("printing the board in console")
-
 def game_start_text(turn):
     """ HANGMAN text on top of the window """
     text_font = pygame.font.Font(pygame.font.get_default_font(), 40)
     start_text = "DISTRIBUTED HANGMAN"
     label = text_font.render(start_text, 0, RED)
+    # add text informing which player starts the game?
     return label
 
 def letter_text(letter):
     button_font = pygame.font.Font(pygame.font.get_default_font(), 20)
     label = button_font.render(letter, True, BLACK)
     return label
-
 
 
 class UI:
@@ -66,12 +57,6 @@ class UI:
         self.game_active = True
         self.screen = pygame.display.set_mode(BOARD_SIZE)
         pygame.display.set_caption("Distributed Hangman")
-        
-    
-    def draw_board(self, board):
-        """ Drawing the game board in pygame window """
-        ''' draw board items here '''
-        pygame.display.update()
 
     def window_top_text(self):
         text_font = pygame.font.Font(pygame.font.get_default_font(), 40)
@@ -97,8 +82,6 @@ class UI:
         self.screen.blit(text,INPUT_IP)
         
 
-
-
     def draw_letter_buttons(self, LETTER_BUTTONS):
         for button, letter in LETTER_BUTTONS:
             button_text = letter_text(letter)
@@ -121,7 +104,7 @@ class UI:
         label = text_font.render(text, 0, RED)
         self.screen.blit(label, (500, 400))
         pygame.display.update()
-        time.sleep(5)
+        time.sleep(3)
 
     def display_word(self, game):
         word = ""
@@ -140,11 +123,9 @@ class UI:
         
         turn = random.choice([1, 2, 3, 4])
         print("starting player:", turn)
-        print_board_in_console()  #(self.board)
         pygame.init()
         self.screen.fill(WHITE)
         self.screen.blit(game_start_text(turn), (200, 15))
-        self.draw_board(self.board)
         pygame.display.update()
         IP= ""
         active = False
