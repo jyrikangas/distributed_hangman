@@ -6,3 +6,4 @@ backend/__pycache__*
 .ds*
 objects/__pycache__*
 .env
+backend/log.txt
