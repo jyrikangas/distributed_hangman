@@ -32,7 +32,7 @@ async def send_info(information, target=OTHER_NODES):
         data = json.dumps(information)
         node[1].write(f'{data}\n'.encode())
         await node[1].drain()
-        addr = node.get_extra_info('peername')
+        addr = node[1].get_extra_info('peername')
         logger(f'Message out {information} to {addr}')
         #response = await node[0].readline()
         #print(response.decode())
@@ -62,17 +62,19 @@ async def handle_client(reader, writer):
         if "State" == decoded["Command"]:
             print("State")
             ips = []
-            sender = reader.get_extra_info('peername')
+            sender = writer.get_extra_info('peername')
+            message = decoded["State"]
+            print(game)
             for player in game.get_players():
                 ips.append(player.get_ip())
-            for player in decoded["players"]:
+            for player in message["players"]:
                 if player["ip"] == sender:
                     game.add_player(Player(sender,player["id"]))
                     ips.append(sender)
                 if player["ip"] not in ips:
                     game.add_player(Player(player["ip"],player["id"]))
                     await initiate_connection(player["ip"])
-            for letter in decoded["guessed_letters"]:
+            for letter in message["guessed_letters"]:
                 game.guess_letter(letter)
 
         if "Connect" == decoded["Command"]:
@@ -80,7 +82,7 @@ async def handle_client(reader, writer):
             addr = writer.get_extra_info('peername')
             print(f"Connection from {addr}")
             game.add_player(Player(addr[0],len(game.get_players())+1))
-            await state(game.as_JSON(), [writer])
+            await state([(reader,writer)])
             
     
 
@@ -89,7 +91,7 @@ async def initiate_connection(target_host, target_port = "1999"):
         reader, writer = await asyncio.open_connection(target_host, target_port)
         print(f"Connected to {target_host}:{target_port}")
         
-        await send_info({'Command': 'Connect'})
+        await send_info({'Command': 'Connect'}, [(reader, writer)])
         OTHER_NODES.append((reader, writer))
         tasks.append(asyncio.create_task(handle_client(reader, writer)))
         

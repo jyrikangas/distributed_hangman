@@ -7,3 +7,4 @@ backend/__pycache__*
 objects/__pycache__*
 .env
 backend/log.txt
+log.txt
