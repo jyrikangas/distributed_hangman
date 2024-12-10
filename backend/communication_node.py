@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 
 
+from backend.elect_leader import Decision
 from objects.player import Player
 load_dotenv()
 
@@ -86,10 +87,11 @@ async def handle_client(reader, writer):
 
         if "Election" == decoded["Command"]:
             print("Election")
-            await send_info({'Command':'Ready'})
             addr = writer.get_extra_info('peername')
-            logger(f"received election from {addr}, sent ready")
-            print("Ready sent")
+            logger(f"received election from {addr}")
+            if game.decider == None:
+                game.decider = Decision()
+                game.decider.decide_order(game)
         
         if "Ready" == decoded["Command"]:
             print("Ready received")

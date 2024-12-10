@@ -202,7 +202,8 @@ class UI:
                             game_started = True
                             game.decide_turnorder()
                             turn = game.turnorder[0]
-                            await Decisions().decide_order(communication, game)
+                            game.decider = Decisions()
+                            await game.decider.decide_order(communication, game)
                             print("starting player:", turn)
                             
                             break
