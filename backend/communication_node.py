@@ -105,7 +105,7 @@ async def main(gameinst):
     host = os.getenv('HOST')
     port = 1999
     print(game.as_JSON())
-    game.add_player(Player(host, 1))
+    game.add_player(Player(host))
     await asyncio.gather(listen_for_connections(host, port), *tasks)
     
 

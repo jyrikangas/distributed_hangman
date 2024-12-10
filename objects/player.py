@@ -1,8 +1,9 @@
 
 class Player:
-    def __init__(self, ip_address : str, playerid : int):
+    def __init__(self, ip_address : str):
         self.ip = ip_address
-        self.id = playerid
+        self.id = -1
 
     def get_ip(self):
         return self.ip
+    

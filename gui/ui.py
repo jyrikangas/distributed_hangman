@@ -4,6 +4,7 @@ import pygame
 import time
 import asyncio
 from objects.player import Player
+import os
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -36,7 +37,7 @@ for index, box in enumerate(LETTER_BOXES):
 INPUT_IP = pygame.Rect(500, 200, 140, 32) 
 IP = ''
 
-def game_start_text(turn):
+def game_start_text():
     """ HANGMAN text on top of the window """
     text_font = pygame.font.Font(pygame.font.get_default_font(), 40)
     start_text = "DISTRIBUTED HANGMAN"
@@ -113,7 +114,31 @@ class UI:
         label = text_font.render(text, 0, RED)
         self.screen.blit(label, (500, 400))
         pygame.display.update()
-        time.sleep(3)
+
+    async def guess_loop(self, event, communication, game):
+        global all_letters_found
+        if event.type == pygame.QUIT:
+            sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            clicked_position = event.pos
+            for button, letter in LETTER_BUTTONS:
+                if (button.collidepoint(clicked_position)): #  and (game.turnorder[game.turnorder[game.turn]] == 1)):
+                    # kutsu game.guess letter. palauttaa true/false
+                    correct_guess = game.guess_letter(letter)  # return True / False
+                    print("correct_guess:", correct_guess)
+                    all_letters_found = True
+                    for char in game.get_word():
+                        if char == " ":
+                            continue
+                        if char not in game.get_guessed_letters():
+                            all_letters_found = False
+                    print("all_letters_found in the end:", all_letters_found)
+                    
+                    await communication.guess(letter)
+                            
+                            # jos true, tee jotain napille - no need to change button?
+                            #LETTER_BUTTONS.remove([button, letter])
+
 
     def display_word(self, game):
         word = ""
@@ -130,16 +155,17 @@ class UI:
     async def game_loop(self, communication, game):
         """ Game loop """
         
-        turn = random.choice([1, 2, 3, 4])
-        print("starting player:", turn)
+        
         pygame.init()
         self.screen.fill(WHITE)
-        self.screen.blit(game_start_text(turn), (200, 15))
+        self.screen.blit(game_start_text(), (200, 15))
         pygame.display.update()
         IP= ""
         active = False
+        global all_letters_found
         all_letters_found = False
-        
+        local_player_IP = os.getenv('HOST')
+        game_started = False
         print("Game started")
 
         while self.game_active:
@@ -148,46 +174,37 @@ class UI:
                 print("game_status is 6, game over")
                 self.draw_game_over_text()
                 game.game_status += 1
-            if all_letters_found == True:
+            if all_letters_found:
                 self.draw_player_won_text()
-                break
+                
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    clicked_position = event.pos
-                    for button, letter in LETTER_BUTTONS:
-                        if (button.collidepoint(clicked_position)): #  and (game.turnorder[game.turnorder[game.turn]] == 1)):
-                            # kutsu game.guess letter. palauttaa true/false
-                            correct_guess = game.guess_letter(letter)  # return True / False
-                            print("correct_guess:", correct_guess)
-                            all_letters_found = True
-                            for letter in game.get_word():
-                                if letter == " ":
-                                    continue
-                                if letter not in game.get_guessed_letters():
-                                    all_letters_found = False
-                            print("all_letters_found in the end:", all_letters_found)
-
-                            await communication.guess(letter)
-                            
-                            # jos true, tee jotain napille - no need to change button?
-                            #LETTER_BUTTONS.remove([button, letter])
-
+                    
                     if INPUT_IP.collidepoint(event.pos): 
                         active = True
                     else: 
                         active = False
+                    if game_started and game.turnorder[game.turn] == game.playersbyaddress[local_player_IP].id:
+                        await self.guess_loop(event, communication, game)
+
 
                 if event.type == pygame.KEYDOWN: 
                     if event.key == pygame.K_BACKSPACE: 
                         IP = IP[:-1]
                     elif event.key == pygame.K_RETURN:
                         print(f"enter {IP}")
-
+                        if IP == "start":
+                            game_started = True
+                            game.decide_turnorder()
+                            turn = game.turnorder[0]
+                            print("starting player:", turn)
+                            
+                            break
                         await communication.initiate_connection(IP)
                         #TODO: handle error!
-                        game.add_player(Player(IP, len(game.players) + 1))
+                        game.add_player(Player(IP))
                         
                     else: 
                         IP += event.unicode

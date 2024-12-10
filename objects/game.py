@@ -15,6 +15,7 @@ class Game:
         self.turnorder = []
         self.turn = 0
         self.players = []
+        self.playersbyaddress = {}
         
     def guess_letter(self, letter):
         self.guessed_letters.append(letter)
@@ -43,7 +44,12 @@ class Game:
     
     #takes a list of players and decides the turn order
     def decide_turnorder(self):
+        for i in range(len(self.players)):
+            self.players[i].id = i
         self.turnorder = [player.id for player in self.players]
+        
+        for player in self.players:
+            self.playersbyaddress[player.ip] = player
         random.shuffle(self.turnorder)
         
         return self.turnorder
