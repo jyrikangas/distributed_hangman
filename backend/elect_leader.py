@@ -11,13 +11,13 @@ class Decisions():
         print("Deciding order")
         await communication.send_info({'Command': 'Election'})
 
-        asyncio.sleep(3)
+        await asyncio.sleep(3)
         await communication.send_info({'Command': 'Ready'})
         #await ready
         print("awaiting ready")
         while True:
             await asyncio.sleep(1)
-            if len(self.playerstates) == len(game.players):
+            if len(game.playerstates) == len(game.players):
                 print("all players ready")
                 break
         
@@ -30,11 +30,11 @@ class Decisions():
         #check who has the largest number
         while True:
             await asyncio.sleep(1)
-            if len(self.playerrolls) == len(game.players):
+            if len(game.playerrolls) == len(game.players):
                 print("all players have rolled")
                 break
-        print(self.playerrolls)
-        sort = self.playerrolls.items().sort(key=lambda x: x[1])
+        print(game.playerrolls)
+        sort = game.playerrolls.items().sort(key=lambda x: x[1])
         print(sort)
         print()
         game.turnorder = [player[0] for player in sort]
