@@ -1,5 +1,6 @@
 import asyncio
 import random
+import os
 class Decisions():
 
     def __init__(self):
@@ -17,7 +18,7 @@ class Decisions():
         while True:
             await asyncio.sleep(1)
             await communication.send_info({'Command': 'Ready'})
-            if len(game.playerstates) == len(game.players):
+            if len(game.playerstates) == len(game.players)-1:
                 print("all players ready")
                 break
         
@@ -26,7 +27,7 @@ class Decisions():
         #send random number between 1 and 10000
         print(f"sending random number {randomint}")
         await communication.send_info({'Command': 'ElectionRoll', 'roll': randomint})
-
+        game.playerrolls[os.getenv('HOST')] = randomint
         #check who has the largest number
         while True:
             await asyncio.sleep(1)
