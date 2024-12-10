@@ -7,7 +7,7 @@ import os
 
 from objects.player import Player
 from backend.elect_leader import Decisions
-
+from decisionstates import DecisionStates
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -202,7 +202,7 @@ class UI:
                             game_started = True
                             game.decide_turnorder()
                             turn = game.turnorder[0]
-                            await Decisions().decide_order(communication, game)
+                            await communication.decide_order(game)
                             print("starting player:", turn)
                             
                             break
