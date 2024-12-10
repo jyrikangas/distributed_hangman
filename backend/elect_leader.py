@@ -41,5 +41,4 @@ class Decisions():
         print("sending turn order")
         await communication.send_info({'Command': 'TurnOrder', 'turnorder': game.turnorder})
         print("turn order sent")
-        
 

@@ -16,7 +16,6 @@ class Game:
         self.turn = 0
         self.players = []
         self.playersbyaddress = {}
-        self.decider = None
         
     def guess_letter(self, letter):
         self.guessed_letters.append(letter)

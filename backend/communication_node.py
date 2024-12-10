@@ -89,9 +89,7 @@ async def handle_client(reader, writer):
             print("Election")
             addr = writer.get_extra_info('peername')
             logger(f"received election from {addr}")
-            if game.decider == None:
-                game.decider = Decisions()
-                game.decider.decide_order(game)
+            game.election=True
         
         if "Ready" == decoded["Command"]:
             print("Ready received")
