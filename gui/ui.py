@@ -3,8 +3,11 @@ import random
 import pygame
 import time
 import asyncio
-from objects.player import Player
 import os
+
+from objects.player import Player
+from backend.elect_leader import Decisions
+
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -199,6 +202,7 @@ class UI:
                             game_started = True
                             game.decide_turnorder()
                             turn = game.turnorder[0]
+                            await Decisions().decide_order(communication, game)
                             print("starting player:", turn)
                             
                             break

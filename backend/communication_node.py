@@ -83,6 +83,41 @@ async def handle_client(reader, writer):
             print(f"Connection from {addr}")
             game.add_player(Player(addr[0]))
             await state([(reader,writer)])
+
+        if "Election" == decoded["Command"]:
+            print("Election")
+            await send_info({'Command':'Ready'})
+            addr = writer.get_extra_info('peername')
+            logger(f"received election from {addr}, sent ready")
+            print("Ready sent")
+        
+        if "Ready" == decoded["Command"]:
+            print("Ready received")
+            addr = writer.get_extra_info('peername')
+            print(f"{addr} is Ready")
+            logger(f"{addr} is Ready")
+            game.playerstates[addr] = True
+        
+        if "ElectionRoll" == decoded["Command"]:
+            print("ElectionRoll")
+            roll = decoded["roll"]
+            addr = writer.get_extra_info('peername')
+            print(f"{addr} rolled {roll}")
+            logger(f"{addr} rolled {roll}")
+            game.playerrolls[addr] = roll
+        
+        if "TurnOrder" == decoded["Command"]:
+            print("TurnOrder")
+            received_turnorder = decoded["turnorder"]
+            if len(received_turnorder) !=game.turnorder:
+                print("!!CONFLICT!!")
+                game.turnorder = received_turnorder
+
+            addr = writer.get_extra_info('peername')
+            print(f"Turn order received from {addr}")
+            logger(f"Turn order received from {addr}")
+            print(game.turnorder)
+            break
             
     
 
