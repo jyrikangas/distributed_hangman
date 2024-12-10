@@ -12,16 +12,16 @@ class Decisions():
         print("Deciding order")
         await communication.send_info({'Command': 'Election'})
 
-        
+        """
         #await ready
         print("awaiting ready")
         while True:
-            await asyncio.sleep(1)
+            print(game.playerstates)
             await communication.send_info({'Command': 'Ready'})
             if len(game.playerstates) == len(game.players)-1:
                 print("all players ready")
                 break
-        
+        """
         #after all players are ready, or 30 s have passed, start
         randomint = random.randint(1, 10000)
         #send random number between 1 and 10000
