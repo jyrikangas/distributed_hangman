@@ -10,6 +10,9 @@ class Decisions():
         #send message to all players to elect leader
         print("Deciding order")
         await communication.send_info({'Command': 'Election'})
+
+        asyncio.sleep(3)
+        await communication.send_info({'Command': 'Ready'})
         #await ready
         print("awaiting ready")
         while True:
