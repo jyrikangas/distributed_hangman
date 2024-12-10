@@ -69,10 +69,10 @@ async def handle_client(reader, writer):
                 ips.append(player.get_ip())
             for player in message["players"]:
                 if player["ip"] == sender:
-                    game.add_player(Player(sender,player["id"]))
+                    game.add_player(Player(sender))
                     ips.append(sender)
                 if player["ip"] not in ips:
-                    game.add_player(Player(player["ip"],player["id"]))
+                    game.add_player(Player(player["ip"]))
                     await initiate_connection(player["ip"])
             for letter in message["guessed_letters"]:
                 game.guess_letter(letter)
@@ -81,7 +81,7 @@ async def handle_client(reader, writer):
             OTHER_NODES.append((reader, writer))
             addr = writer.get_extra_info('peername')
             print(f"Connection from {addr}")
-            game.add_player(Player(addr[0],len(game.get_players())+1))
+            game.add_player(Player(addr[0]))
             await state([(reader,writer)])
             
     

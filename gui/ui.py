@@ -204,7 +204,6 @@ class UI:
                             break
                         await communication.initiate_connection(IP)
                         #TODO: handle error!
-                        game.add_player(Player(IP))
                         
                     else: 
                         IP += event.unicode
