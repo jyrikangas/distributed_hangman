@@ -39,7 +39,7 @@ class Decisions():
                 print("all players have rolled")
                 break
         print(game.playerrolls)
-        sort = game.playerrolls.items().sort(key=lambda x: x[1])
+        sort = sorted(game.playerrolls.items(), key=lambda x: x[1], reverse=True)
         print(sort)
         print()
         game.turnorder = [player[0] for player in sort]
