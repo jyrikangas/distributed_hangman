@@ -24,11 +24,15 @@ class Decisions():
         """
         #after all players are ready, or 30 s have passed, start
         randomint = random.randint(1, 10000)
-        #send random number between 1 and 10000
-        print(f"sending random number {randomint}")
-        await communication.send_info({'Command': 'ElectionRoll', 'roll': randomint})
         game.playerrolls[os.getenv('HOST')] = randomint
-        #check who has the largest number
+        for i in range(15):
+            
+            #send random number between 1 and 10000
+            print(f"sending random number {randomint}")
+            await communication.send_info({'Command': 'ElectionRoll', 'roll': randomint})
+            
+            #check who has the largest number
+            await asyncio.sleep(1)
         while True:
             await asyncio.sleep(1)
             if len(game.playerrolls) == len(game.players):
