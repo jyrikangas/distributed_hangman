@@ -97,6 +97,15 @@ class UI:
         label = text_font.render(text, 0, BLACK)
         self.screen.blit(label, (500, 300))
 
+    def draw_player_won_text(self):
+        print("player won the game")
+        text_font = pygame.font.Font(pygame.font.get_default_font(), 60)
+        text = "YOU WON!!!"
+        label = text_font.render(text, 0, RED)
+        self.screen.blit(label, (500, 400))
+        pygame.display.update()
+        time.sleep(3)
+
     def draw_game_over_text(self):
         print("drawing game over text")
         text_font = pygame.font.Font(pygame.font.get_default_font(), 60)
@@ -129,6 +138,7 @@ class UI:
         pygame.display.update()
         IP= ""
         active = False
+        all_letters_found = False
         
         print("Game started")
 
@@ -138,6 +148,9 @@ class UI:
                 print("game_status is 6, game over")
                 self.draw_game_over_text()
                 game.game_status += 1
+            if all_letters_found == True:
+                self.draw_player_won_text()
+                break
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
@@ -148,12 +161,18 @@ class UI:
                             # kutsu game.guess letter. palauttaa true/false
                             correct_guess = game.guess_letter(letter)  # return True / False
                             print("correct_guess:", correct_guess)
-                            # TODO: if game.game_state is 6, end the game
+                            all_letters_found = True
+                            for letter in game.get_word():
+                                if letter == " ":
+                                    continue
+                                if letter not in game.get_guessed_letters():
+                                    all_letters_found = False
+                            print("all_letters_found in the end:", all_letters_found)
+
                             await communication.guess(letter)
                             
                             # jos true, tee jotain napille - no need to change button?
                             #LETTER_BUTTONS.remove([button, letter])
-                            
 
                     if INPUT_IP.collidepoint(event.pos): 
                         active = True
