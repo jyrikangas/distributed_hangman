@@ -11,12 +11,12 @@ class Decisions():
         print("Deciding order")
         await communication.send_info({'Command': 'Election'})
 
-        await asyncio.sleep(3)
-        await communication.send_info({'Command': 'Ready'})
+        
         #await ready
         print("awaiting ready")
         while True:
             await asyncio.sleep(1)
+            await communication.send_info({'Command': 'Ready'})
             if len(game.playerstates) == len(game.players):
                 print("all players ready")
                 break
