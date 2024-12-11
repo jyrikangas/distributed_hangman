@@ -126,7 +126,7 @@ async def handle_client(reader, writer):
             print("TurnOrder")
             received_turnorder = decoded["turnorder"]
             print(f"received {received_turnorder}, current {game.turnorder}")
-            if len(received_turnorder) !=game.turnorder:
+            if received_turnorder !=game.turnorder:
                 print("!!CONFLICT!!")
                 game.turnorder = received_turnorder
 
