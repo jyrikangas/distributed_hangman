@@ -36,7 +36,7 @@ async def send_info(information, target=OTHER_NODES):
     information.update({'from_ip': host, "from_name": game.playersbyaddress[host].name})
     print(information)
     for node in target:
-        print(f"sending to {node.writer.get_extra_info('peername')}")
+        print(f"sending to {node[1].get_extra_info('peername')}")
         data = json.dumps(information)
         node[1].write(f'{data}\n'.encode())
         await node[1].drain()
