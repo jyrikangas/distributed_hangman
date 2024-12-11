@@ -136,7 +136,7 @@ class UI:
                         if char not in game.get_guessed_letters():
                             all_letters_found = False
                     print("all_letters_found in the end:", all_letters_found)
-                    await communication.guess_letter(letter)
+                    await communication.guess(letter)
                     await communication.state()
                             
                             # jos true, tee jotain napille - no need to change button?

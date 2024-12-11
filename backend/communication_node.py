@@ -87,8 +87,8 @@ async def handle_client(reader, writer):
                     new_player.create_name(game)
                     game.add_player(new_player)
                     await initiate_connection(player["ip"])
-            for letter in message["guessed_letters"]:
-                game.guess_letter(letter)
+            #for letter in message["guessed_letters"]:
+                #game.guess_letter(letter)
 
         if "Connect" == decoded["Command"]:
             OTHER_NODES.append((reader, writer))
