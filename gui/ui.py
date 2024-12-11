@@ -136,7 +136,7 @@ class UI:
                             all_letters_found = False
                     print("all_letters_found in the end:", all_letters_found)
                     
-                    await communication.state(game)
+                    await communication.state()
                             
                             # jos true, tee jotain napille - no need to change button?
                             #LETTER_BUTTONS.remove([button, letter])
