@@ -221,6 +221,7 @@ async def main(gameinst):
     host_player = Player(host)
     host_player.create_name(game)
     game.add_player(host_player)
+    
     try:
         await listen_for_connections("0.0.0.0", port, *tasks)
     except Exception as e:

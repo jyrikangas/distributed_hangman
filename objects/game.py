@@ -55,6 +55,7 @@ class Game:
         return self.turnorder
     
     def add_player(self, player : Player):
+        self.playersbyaddress[player.ip] = player
         self.players.append(player)
         
     def as_JSON(self):
