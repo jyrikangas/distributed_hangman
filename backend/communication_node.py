@@ -72,19 +72,14 @@ async def handle_client(reader, writer):
 
         if "State" == decoded["Command"]:
             print("State")
-            ips = []
+            names = []
             sender = writer.get_extra_info('peername')
             message = decoded["State"]
             print(game)
             for player in game.get_players():
-                ips.append(player.get_ip())
+                names.append(player.name)
             for player in message["players"]:
-                if player["ip"] == sender:
-                    new_player = Player(sender)
-                    new_player.create_name(game)
-                    game.add_player(new_player)
-                    ips.append(sender)
-                if player["ip"] not in ips:
+                if player["name"] not in names:
                     new_player = Player(player["ip"])
                     new_player.create_name(game)
                     game.add_player(new_player)
