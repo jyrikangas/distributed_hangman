@@ -34,6 +34,7 @@ async def guess(letter):
 async def send_info(information, target=OTHER_NODES):
     print(len(OTHER_NODES))
     information.update({'from_ip': host, "from_name": game.playersbyaddress[host].name})
+    print(information)
     for node in target:
         data = json.dumps(information)
         node[1].write(f'{data}\n'.encode())
@@ -137,7 +138,12 @@ async def handle_client(reader, writer):
     
 
 async def initiate_connection(target_host, target_port = "1999"):
+    if game.playersbyaddress[target_host] is game.playersbyaddress[host]:
+        logger(f"Tried to connect to self! \n")
+        return
     try:
+        print(f"Connecting to {target_host}:{target_port}")
+        logger(f"Connecting to {target_host}:{target_port}")
         reader, writer = await asyncio.open_connection(target_host, target_port)
         print(f"Connected to {target_host}:{target_port}")
         
