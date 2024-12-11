@@ -188,7 +188,8 @@ class UI:
                         active = True
                     else: 
                         active = False
-                    print(f"turn {game.turn} player {game.turnorder[game.turn]}")
+                    if game_started: 
+                        print(f"turn {game.turn} player {game.turnorder[game.turn]}")
                     if game_started and game.turnorder[game.turn] == game.playersbyaddress[communication.host].name:
                         await self.guess_loop(event, communication, game)
                     else:
