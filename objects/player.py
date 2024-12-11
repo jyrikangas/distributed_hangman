@@ -11,7 +11,7 @@ class Player:
     
     def create_name(self,game):
         characters = string.ascii_letters + string.digits  
-        name =  ''.join(random.choices(characters, 10))
+        name =  ''.join(random.choices(characters, k=10))
         if name in game.playersbyaddress:
             name = name + "1"
         self.name = name
