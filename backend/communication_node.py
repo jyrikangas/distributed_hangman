@@ -3,6 +3,7 @@ import json
 import time
 import os
 import random
+import socket
 from dotenv import load_dotenv
 
 
@@ -15,6 +16,7 @@ tasks = []
 game = None
 playerstates = {}
 playerrolls = {}
+host = ""
 def logger(message):
     with open("log.txt", "a") as file:
         file.write(f'{time.time()}:{message}')
@@ -104,17 +106,18 @@ async def handle_client(reader, writer):
             addr = writer.get_extra_info('peername')
             print(f"{addr} is Ready")
             logger(f"{addr} is Ready")
-            playerstates[addr] = True
+            playerstates[game.playersbyaddress[addr].name] = True
             print(playerstates)
         
         if "ElectionRoll" == decoded["Command"]:
             print("ElectionRoll")
             roll = decoded["roll"]
             addr = writer.get_extra_info('peername')
-            print(f"{addr} rolled {roll}")
-            logger(f"{addr} rolled {roll}")
+            name = game.playersbyaddress[addr].name
+            print(f"{addr} name {name} rolled {roll}")
+            logger(f"{addr} name {name} rolled {roll}")
             
-            playerrolls[addr] = roll
+            playerrolls[name] = roll
         
         if "TurnOrder" == decoded["Command"]:
             print("TurnOrder")
@@ -163,7 +166,7 @@ async def decide_order(game):
     
     #after all players are ready, or 30 s have passed, start
     randomint = random.randint(1, 10000)
-    playerrolls[os.getenv('HOST')] = randomint
+    playerrolls[game.playersbyaddress[host].name] = randomint
     
         
     #send random number between 1 and 10000
@@ -188,11 +191,18 @@ async def decide_order(game):
     await send_info({'Command': 'TurnOrder', 'turnorder': game.turnorder})
     print("turn order sent")
 
+async def get_local_ip_async(target_host='8.8.8.8', target_port=80):
+    loop = asyncio.get_running_loop()
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        await loop.run_in_executor(None, s.connect, (target_host, target_port))
+        local_ip = s.getsockname()[0]
+    return local_ip
 
 async def main(gameinst):
     global game
+    global host
     game = gameinst
-    host = os.getenv('HOST')
+    host = get_local_ip_async()
     port = 1999
     print(game.as_JSON())
     host_player = Player(host)
