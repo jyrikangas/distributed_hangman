@@ -193,7 +193,7 @@ class UI:
                     if game_started and game.turnorder[game.turn] == game.playersbyaddress[communication.host].name:
                         await self.guess_loop(event, communication, game)
                     else:
-                        await asyncio.sleep(0.1)
+                        await asyncio.sleep(1)
 
 
                 if event.type == pygame.KEYDOWN: 
