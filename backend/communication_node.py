@@ -138,7 +138,13 @@ async def handle_client(reader, writer):
     
 
 async def initiate_connection(target_host, target_port = "1999"):
-    if game.playersbyaddress[target_host] is game.playersbyaddress[host]:
+    ourname = game.playersbyaddress[host].name
+    try:
+        theirname = game.playersbyaddress[target_host].name
+    except:
+        theirname = "Unknown"
+    
+    if ourname == theirname:
         logger(f"Tried to connect to self! \n")
         return
     try:
