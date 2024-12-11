@@ -7,7 +7,6 @@ import os
 
 from objects.player import Player
 from backend.elect_leader import Decisions
-from decisionstates import DecisionStates
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)

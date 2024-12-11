@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 
 
 from backend.elect_leader import Decisions
-from objects.decisionstates import DecisionStates
 from objects.player import Player
 load_dotenv()
 
@@ -73,10 +72,14 @@ async def handle_client(reader, writer):
                 ips.append(player.get_ip())
             for player in message["players"]:
                 if player["ip"] == sender:
-                    game.add_player(Player(sender))
+                    new_player = Player(sender)
+                    new_player.create_name(game)
+                    game.add_player(new_player)
                     ips.append(sender)
                 if player["ip"] not in ips:
-                    game.add_player(Player(player["ip"]))
+                    new_player = Player(player["ip"])
+                    new_player.create_name(game)
+                    game.add_player(new_player)
                     await initiate_connection(player["ip"])
             for letter in message["guessed_letters"]:
                 game.guess_letter(letter)
@@ -85,7 +88,10 @@ async def handle_client(reader, writer):
             OTHER_NODES.append((reader, writer))
             addr = writer.get_extra_info('peername')
             print(f"Connection from {addr}")
-            game.add_player(Player(addr[0]))
+            new_player = Player(addr[0])
+            new_player.create_name(game)
+            
+            game.add_player(new_player)
             await state([(reader,writer)])
 
         if "Election" == decoded["Command"]:
@@ -99,6 +105,7 @@ async def handle_client(reader, writer):
             print(f"{addr} is Ready")
             logger(f"{addr} is Ready")
             playerstates[addr] = True
+            print(playerstates)
         
         if "ElectionRoll" == decoded["Command"]:
             print("ElectionRoll")
@@ -106,6 +113,7 @@ async def handle_client(reader, writer):
             addr = writer.get_extra_info('peername')
             print(f"{addr} rolled {roll}")
             logger(f"{addr} rolled {roll}")
+            
             playerrolls[addr] = roll
         
         if "TurnOrder" == decoded["Command"]:
@@ -147,6 +155,7 @@ async def decide_order(game):
     print("awaiting ready")
     while True:
         print(playerstates)
+        await asyncio.sleep(3)
         await send_info({'Command': 'Ready'})
         if len(playerstates) == len(game.players)-1:
             print("all players ready")
@@ -186,7 +195,9 @@ async def main(gameinst):
     host = os.getenv('HOST')
     port = 1999
     print(game.as_JSON())
-    game.add_player(Player(host))
+    host_player = Player(host)
+    host_player.create_name(game)
+    game.add_player(host_player)
     try:
         await listen_for_connections(host, port, *tasks)
     except Exception as e:
