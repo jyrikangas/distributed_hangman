@@ -188,7 +188,7 @@ class UI:
                         active = True
                     else: 
                         active = False
-                    if game_started and game.turnorder[game.turn] == game.playersbyaddress[local_player_IP].id:
+                    if game_started and game.turnorder[game.turn] == game.playersbyaddress[communication.host].name:
                         await self.guess_loop(event, communication, game)
 
 
