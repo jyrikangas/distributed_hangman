@@ -59,7 +59,8 @@ async def handle_client(reader, writer):
         logger(f'Message in {decoded_json}')
         print("decoded_json:", decoded_json)
         decoded = json.loads(decoded_json)
-        if game.playersbyaddress[decoded["from_ip"]] is None:
+        
+        if decoded["from_ip"] not in game.playersbyaddress:
             new_player = Player(decoded["from_ip"])
             new_player.name = decoded["from_name"]
             game.add_player(new_player)
