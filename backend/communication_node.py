@@ -33,6 +33,7 @@ async def guess(letter):
 
 async def send_info(information, target=OTHER_NODES):
     print(len(OTHER_NODES))
+    information.update({'from_ip': host, "from_name": game.playersbyaddress[host].name})
     for node in target:
         data = json.dumps(information)
         node[1].write(f'{data}\n'.encode())
@@ -57,6 +58,11 @@ async def handle_client(reader, writer):
         logger(f'Message in {decoded_json}')
         print("decoded_json:", decoded_json)
         decoded = json.loads(decoded_json)
+        if game.getplayersbyaddress[decoded["from_ip"]] is None:
+            new_player = Player(decoded["from_ip"])
+            new_player.name = decoded["from_name"]
+            game.add_player(new_player)
+            
         if "Guess" == decoded["Command"]:
             game.guess_letter(decoded["Letter"])
             await send_info({'Command':'Response OK'})
@@ -209,7 +215,7 @@ async def main(gameinst):
     host_player.create_name(game)
     game.add_player(host_player)
     try:
-        await listen_for_connections(host, port, *tasks)
+        await listen_for_connections("0.0.0.0", port, *tasks)
     except Exception as e:
         print(f"Failed to listen: {e}")
 
