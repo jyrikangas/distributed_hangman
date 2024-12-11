@@ -202,7 +202,7 @@ async def main(gameinst):
     global game
     global host
     game = gameinst
-    host = get_local_ip_async()
+    host = await get_local_ip_async()
     port = 1999
     print(game.as_JSON())
     host_player = Player(host)
