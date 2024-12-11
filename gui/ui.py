@@ -15,7 +15,7 @@ YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 
 BOARD_SIZE = (950, 750)
-
+GAME = None
 IMAGES = []
 for i in range(8):
     image = pygame.image.load((f'assets/hangman_image_{i}.jpg'))
@@ -87,10 +87,11 @@ class UI:
 
     def draw_letter_buttons(self, LETTER_BUTTONS):
         for button, letter in LETTER_BUTTONS:
-            button_text = letter_text(letter)
-            button_text_rect = button_text.get_rect(center=(button.x + 20, button.y + 20))
-            pygame.draw.rect(self.screen, BLACK, button, 2)
-            self.screen.blit(button_text, button_text_rect)
+            if letter not in GAME.guessed_letters:
+                button_text = letter_text(letter)
+                button_text_rect = button_text.get_rect(center=(button.x + 20, button.y + 20))
+                pygame.draw.rect(self.screen, BLACK, button, 2)
+                self.screen.blit(button_text, button_text_rect)
 
     def display_wrong_guesses(self, image_index):
         if image_index > 6:
@@ -156,17 +157,16 @@ class UI:
 
     async def game_loop(self, communication, game):
         """ Game loop """
-        
-        
         pygame.init()
         self.screen.fill(WHITE)
         self.screen.blit(game_start_text(), (200, 15))
         pygame.display.update()
+        global GAME
+        GAME = game
         IP= ""
         active = False
         global all_letters_found
         all_letters_found = False
-        local_player_IP = os.getenv('HOST')
         game_started = False
         print("Game started")
 
@@ -189,11 +189,10 @@ class UI:
                     else: 
                         active = False
                     if game_started: 
-                        print(f"turn {game.turn} player {game.turnorder[game.turn]}")
+                        print(f"round {game.round} turn {game.turn} player {game.turnorder[game.turn]}")
                     if game_started and game.turnorder[game.turn] == game.playersbyaddress[communication.host].name:
                         await self.guess_loop(event, communication, game)
-                    else:
-                        await asyncio.sleep(1)
+                    
 
 
                 if event.type == pygame.KEYDOWN: 

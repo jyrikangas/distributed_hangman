@@ -135,7 +135,7 @@ async def handle_client(reader, writer):
             print(f"Turn order received from {addr}")
             logger(f"Turn order received from {addr}")
             print(game.turnorder)
-            break
+            
             
     
 
