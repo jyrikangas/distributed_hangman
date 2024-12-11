@@ -191,6 +191,8 @@ async def decide_order(game):
     await asyncio.sleep(1)
     while True:
         await asyncio.sleep(1)
+        print(playerrolls)
+        print(game.players)
         if len(playerrolls) == len(game.players):
             print("all players have rolled")
             break
