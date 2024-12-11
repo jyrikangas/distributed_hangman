@@ -93,10 +93,10 @@ async def handle_client(reader, writer):
             OTHER_NODES.append((reader, writer))
             addr = writer.get_extra_info('peername')
             print(f"Connection from {addr}")
-            new_player = Player(addr[0])
-            new_player.create_name(game)
+            #new_player = Player(addr[0])
+            #new_player.create_name(game)
             
-            game.add_player(new_player)
+            #game.add_player(new_player)
             await state([(reader,writer)])
 
         if "Election" == decoded["Command"]:
@@ -106,17 +106,17 @@ async def handle_client(reader, writer):
         
         if "Ready" == decoded["Command"]:
             print("Ready received")
-            addr = writer.get_extra_info('peername')
-            print(f"{addr} is Ready")
-            logger(f"{addr} is Ready")
-            playerstates[game.playersbyaddress[addr].name] = True
+            name = decoded["from_name"]
+            print(f"{name} is Ready")
+            logger(f"{name} is Ready")
+            playerstates[name] = True
             print(playerstates)
         
         if "ElectionRoll" == decoded["Command"]:
             print("ElectionRoll")
             roll = decoded["roll"]
             addr = writer.get_extra_info('peername')
-            name = game.playersbyaddress[addr].name
+            name = decoded["from_name"]
             print(f"{addr} name {name} rolled {roll}")
             logger(f"{addr} name {name} rolled {roll}")
             
