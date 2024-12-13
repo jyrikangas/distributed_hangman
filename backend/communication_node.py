@@ -19,7 +19,7 @@ playerrolls = {}
 host = ""
 def logger(message):
     with open("log.txt", "a") as file:
-        file.write(f'{time.time()}:{message}')
+        file.write(f'{time.time()}:{message}\n')
 
 async def state(target=OTHER_NODES):
     await send_info({'Command':'State', 'State': game.as_JSON()}, target)
@@ -36,14 +36,19 @@ async def send_info(information, target=OTHER_NODES):
     information.update({'from_ip': host, "from_name": game.playersbyaddress[host].name})
     print(information)
     for node in target:
-        print(f"sending to {node[1].get_extra_info('peername')}")
-        data = json.dumps(information)
-        node[1].write(f'{data}\n'.encode())
-        await node[1].drain()
-        addr = node[1].get_extra_info('peername')
-        logger(f'Message out {information} to {addr}')
-        #response = await node[0].readline()
-        #print(response.decode())
+        try:
+            print(f"sending to {node[1].get_extra_info('peername')}")
+            data = json.dumps(information)
+            node[1].write(f'{data}\n'.encode())
+            await node[1].drain()
+            addr = node[1].get_extra_info('peername')
+            logger(f'Message out {information} to {addr}')
+            #response = await node[0].readline()
+            #print(response.decode())
+        except ConnectionAbortedError as e:
+            print(e)
+            OTHER_NODES.remove(node)
+            print(len(OTHER_NODES))
 
 
 async def listen_for_connections(host, port):
@@ -55,87 +60,102 @@ async def listen_for_connections(host, port):
 async def handle_client(reader, writer):
 
     while True:
-        response = await reader.readline()
-        decoded_json = response.decode()
-        logger(f'Message in {decoded_json}')
-        print("decoded_json:", decoded_json)
-        decoded = json.loads(decoded_json)
-        
-        if decoded["from_ip"] not in game.playersbyaddress:
-            new_player = Player(decoded["from_ip"])
-            new_player.name = decoded["from_name"]
-            game.add_player(new_player)
+        try:
+            response = await reader.readline()
+            decoded_json = response.decode()
+            logger(f'Message in {decoded_json}')
+            print("decoded_json:", decoded_json)
+            decoded = json.loads(decoded_json)
             
-        if "Guess" == decoded["Command"]:
-            game.guess_letter(decoded["Letter"])
-            await send_info({'Command':'Response OK'})
+            if decoded["from_ip"] not in game.playersbyaddress:
+                new_player = Player(decoded["from_ip"])
+                new_player.name = decoded["from_name"]
+                game.add_player(new_player)
+                
+            if "Guess" == decoded["Command"]:
+                game.guess_letter(decoded["Letter"])
+                await send_info({'Command':'Response OK'})
 
-        if "Response OK" == decoded["Command"]:
-            print("OK")
+            if "Response OK" == decoded["Command"]:
+                print("OK")
 
-        if "State" == decoded["Command"]:
-            print("State")
-            names = []
-            sender = writer.get_extra_info('peername')
-            message = decoded["State"]
-            print(game)
-            for player in game.get_players():
-                names.append(player.name)
-            for player in message["players"]:
-                if player["name"] not in names:
-                    new_player = Player(player["ip"])
-                    new_player.create_name(game)
-                    game.add_player(new_player)
-                    await initiate_connection(player["ip"])
-            #for letter in message["guessed_letters"]:
-                #game.guess_letter(letter)
+            if "State" == decoded["Command"]:
+                print("State")
+                names = []
+                sender = writer.get_extra_info('peername')
+                message = decoded["State"]
+                print(game)
+                for player in game.get_players():
+                    names.append(player.name)
+                for player in message["players"]:
+                    if player["name"] not in names:
+                        #new_player = Player(player["ip"])
+                        #new_player.create_name(game)
+                        #game.add_player(new_player)
+                        await initiate_connection(player["ip"])
+                #for letter in message["guessed_letters"]:
+                    #game.guess_letter(letter)
+                game.set_state(decoded["State"])
 
-        if "Connect" == decoded["Command"]:
-            OTHER_NODES.append((reader, writer))
-            addr = writer.get_extra_info('peername')
-            print(f"Connection from {addr}")
-            #new_player = Player(addr[0])
-            #new_player.create_name(game)
+            if "Connect" == decoded["Command"]:
+                OTHER_NODES.append((reader, writer))
+                addr = writer.get_extra_info('peername')
+                print(f"Connection from {addr}")
+
+                #Check if player already in game
+                for player in game.get_players():
+                    if player.get_ip() == addr[0]:
+                        print(f"Player {addr} already in the game. Reconnecting...")
+                        await state([(reader,writer)])
+                        break
+                #new_player = Player(addr[0])
+                #new_player.create_name(game)
+                
+                #game.add_player(new_player)
+                await state([(reader,writer)])
+
+            if "Election" == decoded["Command"]:
+                print("Election")
+                addr = writer.get_extra_info('peername')
+                logger(f"received election from {addr}")
             
-            #game.add_player(new_player)
-            await state([(reader,writer)])
-
-        if "Election" == decoded["Command"]:
-            print("Election")
-            addr = writer.get_extra_info('peername')
-            logger(f"received election from {addr}")
-        
-        if "Ready" == decoded["Command"]:
-            print("Ready received")
-            name = decoded["from_name"]
-            print(f"{name} is Ready")
-            logger(f"{name} is Ready")
-            playerstates[name] = True
-            print(playerstates)
-        
-        if "ElectionRoll" == decoded["Command"]:
-            print("ElectionRoll")
-            roll = decoded["roll"]
-            addr = writer.get_extra_info('peername')
-            name = decoded["from_name"]
-            print(f"{addr} name {name} rolled {roll}")
-            logger(f"{addr} name {name} rolled {roll}")
+            if "Ready" == decoded["Command"]:
+                print("Ready received")
+                name = decoded["from_name"]
+                print(f"{name} is Ready")
+                logger(f"{name} is Ready")
+                playerstates[name] = True
+                print(playerstates)
             
-            playerrolls[name] = roll
-        
-        if "TurnOrder" == decoded["Command"]:
-            print("TurnOrder")
-            received_turnorder = decoded["turnorder"]
-            print(f"received {received_turnorder}, current {game.turnorder}")
-            if received_turnorder !=game.turnorder:
-                print("!!CONFLICT!!")
-                game.turnorder = received_turnorder
-
-            addr = writer.get_extra_info('peername')
-            print(f"Turn order received from {addr}")
-            logger(f"Turn order received from {addr}")
-            print(game.turnorder)
+            if "ElectionRoll" == decoded["Command"]:
+                print("ElectionRoll")
+                roll = decoded["roll"]
+                addr = writer.get_extra_info('peername')
+                name = decoded["from_name"]
+                print(f"{addr} name {name} rolled {roll}")
+                logger(f"{addr} name {name} rolled {roll}")
+                
+                playerrolls[name] = roll
             
+            if "TurnOrder" == decoded["Command"]:
+                print("TurnOrder")
+                received_turnorder = decoded["turnorder"]
+                print(f"received {received_turnorder}, current {game.turnorder}")
+                if received_turnorder !=game.turnorder:
+                    print("!!CONFLICT!!")
+                    game.turnorder = received_turnorder
+
+                addr = writer.get_extra_info('peername')
+                print(f"Turn order received from {addr}")
+                logger(f"Turn order received from {addr}")
+                print(game.turnorder)
+        except ConnectionAbortedError as e:
+            print(tasks)
+            print(f"Connection error on {writer.get_extra_info('peername')}")
+            OTHER_NODES.remove((reader, writer))
+            #tasks.remove([reader,writer])
+            break
+                
             
     
 
@@ -147,7 +167,7 @@ async def initiate_connection(target_host, target_port = "1999"):
         theirname = "Unknown"
     
     if ourname == theirname:
-        logger(f"Tried to connect to self! \n")
+        logger(f"Tried to connect to self!")
         return
     try:
         print(f"Connecting to {target_host}:{target_port}")

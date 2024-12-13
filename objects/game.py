@@ -69,6 +69,20 @@ class Game:
             "turn": self.turn,
             "players": [player.__dict__ for player in self.players]
         }
+    
+    def set_state(self, state):
+        self.guessed_letters = state["guessed_letters"]
+        self.game_status = state["game_status"]
+        # self.wordlist = ["DISTRIBUTED HANGMAN", "UNIVERSITY OF HELSINKI", "SUOMI FINLAND"]
+        self.WORD = state["WORD"]  # e.g. self.wordlist[random.randint(0,2)]
+        self.board = state["board"]
+        # which round / how many guesses made
+        self.round = state["round"]
+        # turn order as a list of player ids
+        self.turnorder = state["turnorder"]
+        self.turn = state["turn"]
+        self.players = state["players"]
+        self.playersbyaddress = state["playersbyaddress"]
 
     def get_players(self):
         return self.players
