@@ -172,6 +172,8 @@ class UI:
 
         while self.game_active:
             await asyncio.sleep(0.001)
+            if game.started == True:
+                game_started = True
             if game.game_status == 6:
                 print("game_status is 6, game over")
                 self.draw_game_over_text()
@@ -202,6 +204,7 @@ class UI:
                         print(f"enter {IP}")
                         if IP == "start":
                             game_started = True
+                            game.started = True
                             game.decide_turnorder()
                             turn = game.turnorder[0]
                             await communication.decide_order(game)

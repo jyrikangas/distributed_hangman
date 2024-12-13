@@ -6,6 +6,7 @@ class Game:
     def __init__(self):
         self.guessed_letters = []
         self.game_status = 0
+        self.started = False
         # self.wordlist = ["DISTRIBUTED HANGMAN", "UNIVERSITY OF HELSINKI", "SUOMI FINLAND"]
         self.WORD = "DISTRIBUTED HANGMAN"  # e.g. self.wordlist[random.randint(0,2)]
         self.board = [0]
@@ -16,6 +17,7 @@ class Game:
         self.turn = 0
         self.players = []
         self.playersbyaddress = {}
+
         
     def guess_letter(self, letter):
         self.guessed_letters.append(letter)
@@ -57,11 +59,16 @@ class Game:
     def add_player(self, player : Player):
         self.playersbyaddress[player.ip] = player
         self.players.append(player)
-        
+
+    def update_name(self, ip, name):
+        self.playersbyaddress[ip].set_name(name)
+        self.players = self.playersbyaddress.values()
+
     def as_JSON(self):
         return {
             "guessed_letters": self.guessed_letters,
             "game_status": self.game_status,
+            "started": self.started,
             "WORD": self.WORD,
             "board": self.board,
             "round": self.round,
@@ -73,6 +80,7 @@ class Game:
     def set_state(self, state):
         self.guessed_letters = state["guessed_letters"]
         self.game_status = state["game_status"]
+        self.started = state["started"]
         # self.wordlist = ["DISTRIBUTED HANGMAN", "UNIVERSITY OF HELSINKI", "SUOMI FINLAND"]
         self.WORD = state["WORD"]  # e.g. self.wordlist[random.randint(0,2)]
         self.board = state["board"]

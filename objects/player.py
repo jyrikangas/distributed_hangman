@@ -17,3 +17,6 @@ class Player:
         self.name = name
         print(f"Player {self.ip} is named {self.name}")
         return self.name
+
+    def set_name(self, name):
+        self.name = name

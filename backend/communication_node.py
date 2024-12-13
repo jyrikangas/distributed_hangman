@@ -70,6 +70,9 @@ async def handle_client(reader, writer):
             decoded_json = response.decode()
             logger(f'Message in {decoded_json}')
             print("decoded_json:", decoded_json)
+            if decoded == b'':
+                continue
+            
             decoded = json.loads(decoded_json)
             
             if decoded["from_ip"] not in game.playersbyaddress:
@@ -93,6 +96,11 @@ async def handle_client(reader, writer):
                 for player in game.get_players():
                     names.append(player.name)
                 for player in message["players"]:
+                    if player["ip"] == host:
+                        game.update_name(host, player["name"])
+                        names.append(player["name"])
+                        print(game.get_players())
+                        print("Test")
                     if player["name"] not in names:
                         new_player = Player(player["ip"])
                         new_player.create_name(game)
@@ -156,10 +164,8 @@ async def handle_client(reader, writer):
                 logger(f"Turn order received from {addr}")
                 print(game.turnorder)
         except ConnectionAbortedError as e:
-            print(tasks)
             print(f"Connection error on {writer.get_extra_info('peername')}")
             OTHER_NODES.remove((reader, writer))
-            #tasks.remove([reader,writer])
             break
                 
             
