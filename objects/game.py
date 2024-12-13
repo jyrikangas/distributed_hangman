@@ -67,7 +67,8 @@ class Game:
             "round": self.round,
             "turnorder": self.turnorder,
             "turn": self.turn,
-            "players": [player.__dict__ for player in self.players]
+            "players": [player.__dict__ for player in self.players],
+            "playersbyaddress" : self.playersbyaddress
         }
     
     def set_state(self, state):
