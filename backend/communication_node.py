@@ -49,6 +49,11 @@ async def send_info(information, target=OTHER_NODES):
             print(e)
             OTHER_NODES.remove(node)
             print(len(OTHER_NODES))
+        except ConnectionResetError as e:
+            print(e)
+            OTHER_NODES.remove(node)
+            print(len(OTHER_NODES))
+            
 
 
 async def listen_for_connections(host, port):
@@ -89,13 +94,14 @@ async def handle_client(reader, writer):
                     names.append(player.name)
                 for player in message["players"]:
                     if player["name"] not in names:
-                        #new_player = Player(player["ip"])
-                        #new_player.create_name(game)
-                        #game.add_player(new_player)
+                        new_player = Player(player["ip"])
+                        new_player.create_name(game)
+                        game.add_player(new_player)
                         await initiate_connection(player["ip"])
                 #for letter in message["guessed_letters"]:
                     #game.guess_letter(letter)
-                game.set_state(decoded["State"])
+                if game.get_round() < message["round"]:
+                    game.set_state(decoded["State"])
 
             if "Connect" == decoded["Command"]:
                 OTHER_NODES.append((reader, writer))

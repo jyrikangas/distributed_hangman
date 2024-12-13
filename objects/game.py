@@ -81,11 +81,9 @@ class Game:
         # turn order as a list of player ids
         self.turnorder = state["turnorder"]
         self.turn = state["turn"]
-        self.players = state["players"]
-
-        for val in self.players:
-            self.playersbyaddress[val.ip] = val
         
+    def get_round(self):
+        return self.round
 
     def get_players(self):
         return self.players
