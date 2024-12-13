@@ -70,7 +70,7 @@ async def handle_client(reader, writer):
             decoded_json = response.decode()
             logger(f'Message in {decoded_json}')
             print("decoded_json:", decoded_json)
-            if decoded == b'':
+            if decoded_json == b'':
                 continue
             
             decoded = json.loads(decoded_json)
