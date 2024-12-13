@@ -68,7 +68,6 @@ class Game:
             "turnorder": self.turnorder,
             "turn": self.turn,
             "players": [player.__dict__ for player in self.players],
-            "playersbyaddress" : self.playersbyaddress
         }
     
     def set_state(self, state):
@@ -83,7 +82,10 @@ class Game:
         self.turnorder = state["turnorder"]
         self.turn = state["turn"]
         self.players = state["players"]
-        self.playersbyaddress = state["playersbyaddress"]
+
+        for val in self.players:
+            self.playersbyaddress[val.ip] = val
+        
 
     def get_players(self):
         return self.players
