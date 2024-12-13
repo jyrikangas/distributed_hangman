@@ -46,6 +46,7 @@ class Game:
     
     #takes a list of players and decides the turn order
     def decide_turnorder(self):
+        print(self.players)
         for i in range(len(self.players)):
             self.players[i].id = i
         self.turnorder = [player.id for player in self.players]
@@ -62,7 +63,8 @@ class Game:
 
     def update_name(self, ip, name):
         self.playersbyaddress[ip].set_name(name)
-        self.players = self.playersbyaddress.values()
+        self.players = list(self.playersbyaddress.values())
+
 
     def as_JSON(self):
         return {
