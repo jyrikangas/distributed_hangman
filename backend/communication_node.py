@@ -1,11 +1,9 @@
 import asyncio
 import json
 import time
-import os
 import random
 import socket
 from dotenv import load_dotenv
-
 
 from backend.elect_leader import Decisions
 from objects.player import Player
@@ -53,7 +51,6 @@ async def send_info(information, target=OTHER_NODES):
             print(e)
             OTHER_NODES.remove(node)
             print(len(OTHER_NODES))
-            
 
 
 async def listen_for_connections(host, port):
@@ -72,14 +69,14 @@ async def handle_client(reader, writer):
             print("decoded_json:", decoded_json)
             if decoded_json == b'':
                 continue
-            
+
             decoded = json.loads(decoded_json)
-            
+
             if decoded["from_ip"] not in game.playersbyaddress:
                 new_player = Player(decoded["from_ip"])
                 new_player.name = decoded["from_name"]
                 game.add_player(new_player)
-                
+
             if "Guess" == decoded["Command"]:
                 game.guess_letter(decoded["Letter"])
                 await send_info({'Command':'Response OK'})
@@ -124,7 +121,7 @@ async def handle_client(reader, writer):
                         break
                 #new_player = Player(addr[0])
                 #new_player.create_name(game)
-                
+
                 #game.add_player(new_player)
                 await state([(reader,writer)])
 
@@ -132,7 +129,7 @@ async def handle_client(reader, writer):
                 print("Election")
                 addr = writer.get_extra_info('peername')
                 logger(f"received election from {addr}")
-            
+
             if "Ready" == decoded["Command"]:
                 print("Ready received")
                 name = decoded["from_name"]
@@ -140,7 +137,7 @@ async def handle_client(reader, writer):
                 logger(f"{name} is Ready")
                 playerstates[name] = True
                 print(playerstates)
-            
+
             if "ElectionRoll" == decoded["Command"]:
                 print("ElectionRoll")
                 roll = decoded["roll"]
@@ -148,9 +145,9 @@ async def handle_client(reader, writer):
                 name = decoded["from_name"]
                 print(f"{addr} name {name} rolled {roll}")
                 logger(f"{addr} name {name} rolled {roll}")
-                
+
                 playerrolls[name] = roll
-            
+
             if "TurnOrder" == decoded["Command"]:
                 print("TurnOrder")
                 received_turnorder = decoded["turnorder"]
@@ -167,9 +164,7 @@ async def handle_client(reader, writer):
             print(f"Connection error on {writer.get_extra_info('peername')}")
             OTHER_NODES.remove((reader, writer))
             break
-                
-            
-    
+
 
 async def initiate_connection(target_host, target_port = "1999"):
     ourname = game.playersbyaddress[host].name
@@ -177,7 +172,7 @@ async def initiate_connection(target_host, target_port = "1999"):
         theirname = game.playersbyaddress[target_host].name
     except:
         theirname = "Unknown"
-    
+
     if ourname == theirname:
         logger(f"Tried to connect to self!")
         return
@@ -186,11 +181,10 @@ async def initiate_connection(target_host, target_port = "1999"):
         logger(f"Connecting to {target_host}:{target_port}")
         reader, writer = await asyncio.open_connection(target_host, target_port)
         print(f"Connected to {target_host}:{target_port}")
-        
+
         await send_info({'Command': 'Connect'}, [(reader, writer)])
         OTHER_NODES.append((reader, writer))
         tasks.append(asyncio.create_task(handle_client(reader, writer)))
-        
 
     except Exception as e:
         print(f"Failed to connect: {e}")
@@ -200,7 +194,7 @@ async def decide_order(game):
     #send message to all players to elect leader
     print("Deciding order")
     await send_info({'Command': 'Election'})
-    
+
     #await ready
     print("awaiting ready")
     while True:
@@ -210,16 +204,15 @@ async def decide_order(game):
         if len(playerstates) == len(game.players)-1:
             print("all players ready")
             break
-    
+
     #after all players are ready, or 30 s have passed, start
     randomint = random.randint(1, 10000)
     playerrolls[game.playersbyaddress[host].name] = randomint
-    
-        
+
     #send random number between 1 and 10000
     print(f"sending random number {randomint}")
     await send_info({'Command': 'ElectionRoll', 'roll': randomint})
-    
+
     #check who has the largest number
     await asyncio.sleep(1)
     while True:
@@ -252,17 +245,16 @@ async def main(gameinst):
     global host
     game = gameinst
     host = await get_local_ip_async()
+    print("local host:", host)
     port = 1999
     print(game.as_JSON())
     host_player = Player(host)
     host_player.create_name(game)
     game.add_player(host_player)
-    
+
     try:
         await listen_for_connections("0.0.0.0", port, *tasks)
     except Exception as e:
         print(f"Failed to listen: {e}")
 
         await listen_for_connections("0.0.0.0", port, *tasks)
-    
-

@@ -1,14 +1,18 @@
+""" Leader election module """
+
 import asyncio
 import random
 import os
+
 class Decisions():
+    """ Decisions class """
 
     def __init__(self):
         self.playerstates = {}
         self.playerrolls = {}
 
     async def decide_order(self, communication, game):
-        #send message to all players to elect leader
+        """ Send message to all players to elect leader """
         print("Deciding order")
         await communication.send_info({'Command': 'Election'})
 
@@ -25,12 +29,11 @@ class Decisions():
         #after all players are ready, or 30 s have passed, start
         randomint = random.randint(1, 10000)
         game.playerrolls[os.getenv('HOST')] = randomint
-        for i in range(15):
-            
+        for _ in range(15):
             #send random number between 1 and 10000
             print(f"sending random number {randomint}")
             await communication.send_info({'Command': 'ElectionRoll', 'roll': randomint})
-            
+
             #check who has the largest number
             await asyncio.sleep(1)
         while True:
@@ -49,4 +52,3 @@ class Decisions():
         print("sending turn order")
         await communication.send_info({'Command': 'TurnOrder', 'turnorder': game.turnorder})
         print("turn order sent")
-

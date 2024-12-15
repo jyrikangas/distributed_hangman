@@ -1,9 +1,7 @@
 import sys
-import random
-import pygame
-import time
 import asyncio
-import os
+import time
+import pygame
 
 from objects.player import Player
 from backend.elect_leader import Decisions
@@ -36,11 +34,11 @@ for index, box in enumerate(LETTER_BOXES):
     button = ([box, letter])
     LETTER_BUTTONS.append(button)
 
-INPUT_IP = pygame.Rect(500, 200, 140, 32) 
+INPUT_IP = pygame.Rect(500, 200, 140, 32)
 IP = ''
 
 def game_start_text():
-    """ HANGMAN text on top of the window """
+    """ Drawing DISTRIBUTED HANGMAN text on top of the window """
     text_font = pygame.font.Font(pygame.font.get_default_font(), 40)
     start_text = "DISTRIBUTED HANGMAN"
     label = text_font.render(start_text, 0, RED)
@@ -48,6 +46,7 @@ def game_start_text():
     return label
 
 def letter_text(letter):
+    """ Drawing letters which are placed in letter boxes """
     button_font = pygame.font.Font(pygame.font.get_default_font(), 20)
     label = button_font.render(letter, True, BLACK)
     return label
@@ -70,22 +69,23 @@ class UI:
     def join_game_input(self, INPUT_IP, IP="", active=False):
         text_font = pygame.font.Font(pygame.font.get_default_font(), 40)
 
-        color_active = pygame.Color('lightskyblue3') 
+        color_active = pygame.Color('lightskyblue3')
 
-        color_passive = pygame.Color('chartreuse4') 
+        color_passive = pygame.Color('chartreuse4')
         if active:
             color = color_active
         else:
             color = color_passive
 
         text = text_font.render(IP, True, BLACK)
-        pygame.draw.rect(self.screen, color, INPUT_IP) 
-        INPUT_IP.w = max(100, text.get_width()+10) 
-        
+        pygame.draw.rect(self.screen, color, INPUT_IP)
+        INPUT_IP.w = max(100, text.get_width()+10)
+
         self.screen.blit(text,INPUT_IP)
-        
+
 
     def draw_letter_buttons(self, LETTER_BUTTONS):
+        """ Drawing letter buttons on the screen """
         for button, letter in LETTER_BUTTONS:
             if letter not in GAME.guessed_letters:
                 button_text = letter_text(letter)
@@ -94,6 +94,7 @@ class UI:
                 self.screen.blit(button_text, button_text_rect)
 
     def display_wrong_guesses(self, image_index):
+        """ Displaying wrong guesses """
         if image_index > 6:
             image_index = 6
         text_font = pygame.font.Font(pygame.font.get_default_font(), 20)
@@ -102,7 +103,7 @@ class UI:
         self.screen.blit(label, (500, 300))
 
     def draw_player_won_text(self):
-        print("player won the game")
+        """ Drawing YOU WON when all letters guessed correct """
         text_font = pygame.font.Font(pygame.font.get_default_font(), 60)
         text = "YOU WON!!!"
         label = text_font.render(text, 0, RED)
@@ -111,7 +112,7 @@ class UI:
         time.sleep(3)
 
     def draw_game_over_text(self):
-        print("drawing game over text")
+        """ Drawing text GAME OVER when game ends """
         text_font = pygame.font.Font(pygame.font.get_default_font(), 60)
         text = "GAME OVER"
         label = text_font.render(text, 0, RED)
@@ -138,12 +139,10 @@ class UI:
                     print("all_letters_found in the end:", all_letters_found)
                     await communication.guess(letter)
                     await communication.state()
-                            
-                            # jos true, tee jotain napille - no need to change button?
-                            #LETTER_BUTTONS.remove([button, letter])
 
 
     def display_word(self, game):
+        """ Displaying the guessed word on the screen """
         word = ""
         for letter in game.get_word():
             if letter in game.get_guessed_letters():
@@ -172,7 +171,7 @@ class UI:
 
         while self.game_active:
             await asyncio.sleep(0.001)
-            if game.started == True:
+            if game.started is True:
                 game_started = True
             if game.game_status == 6:
                 print("game_status is 6, game over")
@@ -180,25 +179,23 @@ class UI:
                 game.game_status += 1
             if all_letters_found:
                 self.draw_player_won_text()
-                
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    
-                    if INPUT_IP.collidepoint(event.pos): 
+                    if INPUT_IP.collidepoint(event.pos):
                         active = True
-                    else: 
+                    else:
                         active = False
-                    if game_started: 
+                    if game_started:
                         print(f"round {game.round} turn {game.turn} player {game.turnorder[game.turn]}")
                     if game_started and game.turnorder[game.turn] == game.playersbyaddress[communication.host].name:
                         await self.guess_loop(event, communication, game)
-                    
 
 
-                if event.type == pygame.KEYDOWN: 
-                    if event.key == pygame.K_BACKSPACE: 
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE:
                         IP = IP[:-1]
                     elif event.key == pygame.K_RETURN:
                         print(f"enter {IP}")
@@ -209,11 +206,10 @@ class UI:
                             turn = game.turnorder[0]
                             await communication.decide_order(game)
                             print("starting player:", turn)
-                            
                             break
                         await communication.initiate_connection(IP)
                         #TODO: handle error!
-                        
+
                     else: 
                         IP += event.unicode
 
