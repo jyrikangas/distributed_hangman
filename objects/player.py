@@ -8,7 +8,6 @@ class Player:
 
     def __init__(self, ip_address : str):
         self.ip = ip_address
-        self.id = -1
         self.name = ""
 
     def get_ip(self):

@@ -3,8 +3,6 @@ import asyncio
 import time
 import pygame
 
-from objects.player import Player
-from backend.elect_leader import Decisions
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
@@ -55,7 +53,6 @@ def letter_text(letter):
 class UI:
     """ User interface for the game """
     def __init__(self):
-        self.board = [0]
         self.game_active = True
         self.screen = pygame.display.set_mode(BOARD_SIZE)
         pygame.display.set_caption("Distributed Hangman")
@@ -126,9 +123,8 @@ class UI:
         if event.type == pygame.MOUSEBUTTONDOWN:
             clicked_position = event.pos
             for button, letter in LETTER_BUTTONS:
-                if (button.collidepoint(clicked_position)): #  and (game.turnorder[game.turnorder[game.turn]] == 1)):
-                    # kutsu game.guess letter. palauttaa true/false
-                    correct_guess = game.guess_letter(letter)  # return True / False
+                if (button.collidepoint(clicked_position)): 
+                    correct_guess = game.guess_letter(letter) 
                     print("correct_guess:", correct_guess)
                     all_letters_found = True
                     for char in game.get_word():
@@ -171,12 +167,10 @@ class UI:
 
         while self.game_active:
             await asyncio.sleep(0.001)
-            if game.started is True:
-                game_started = True
-            if game.game_status == 6:
-                print("game_status is 6, game over")
+            if game.wrong_guesses == 6:
+                print("6 wrong_guesses, game over")
                 self.draw_game_over_text()
-                game.game_status += 1
+                game.wrong_guesses += 1
             if all_letters_found:
                 self.draw_player_won_text()
 
@@ -193,7 +187,8 @@ class UI:
                     if game_started and game.turnorder[game.turn] == game.playersbyaddress[communication.host].name:
                         await self.guess_loop(event, communication, game)
 
-
+                # Loop for entering IP address to connect to. If 'start' is entered, the 'ready' message is sent to other players
+                # if all players are ready, the game starts.
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_BACKSPACE:
                         IP = IP[:-1]
@@ -201,10 +196,8 @@ class UI:
                         print(f"enter {IP}")
                         if IP == "start":
                             game_started = True
-                            game.started = True
-                            game.decide_turnorder()
-                            turn = game.turnorder[0]
                             await communication.decide_order(game)
+                            turn = game.turnorder[0]
                             print("starting player:", turn)
                             break
                         await communication.initiate_connection(IP)
@@ -215,9 +208,9 @@ class UI:
 
             self.screen.fill(WHITE)
             self.window_top_text()
-            self.screen.blit(IMAGES[game.game_status], (50, 140))
+            self.screen.blit(IMAGES[game.wrong_guesses], (50, 140))
 
-            self.display_wrong_guesses(game.game_status)
+            self.display_wrong_guesses(game.wrong_guesses)
             self.display_word(game)
             self.draw_letter_buttons(LETTER_BUTTONS)
             self.join_game_input(INPUT_IP, IP, active)

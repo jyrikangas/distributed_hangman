@@ -5,10 +5,8 @@ from objects.player import Player
 class Game:
     def __init__(self):
         self.guessed_letters = []
-        self.game_status = 0
-        self.started = False
+        self.wrong_guesses = 0
         self.WORD = "DISTRIBUTED HANGMAN"
-        self.board = [0]
         # which round / how many guesses made
         self.round = 0
         # turn order as a list of player ids
@@ -32,7 +30,7 @@ class Game:
                 break
         if letter in self.WORD:
             return True
-        self.game_status += 1
+        self.wrong_guesses += 1
         return False
 
     def get_word(self):
@@ -41,18 +39,6 @@ class Game:
     def get_guessed_letters(self):
         return self.guessed_letters
 
-    #takes a list of players and decides the turn order
-    def decide_turnorder(self):
-        print(self.players)
-        for i in range(len(self.players)):
-            self.players[i].id = i
-        self.turnorder = [player.id for player in self.players]
-
-        for player in self.players:
-            self.playersbyaddress[player.ip] = player
-        random.shuffle(self.turnorder)
-
-        return self.turnorder
 
     def add_player(self, player : Player):
         self.playersbyaddress[player.ip] = player
@@ -66,10 +52,8 @@ class Game:
     def as_JSON(self):
         return {
             "guessed_letters": self.guessed_letters,
-            "game_status": self.game_status,
-            "started": self.started,
+            "game_status": self.wrong_guesses,
             "WORD": self.WORD,
-            "board": self.board,
             "round": self.round,
             "turnorder": self.turnorder,
             "turn": self.turn,
@@ -78,11 +62,9 @@ class Game:
 
     def set_state(self, state):
         self.guessed_letters = state["guessed_letters"]
-        self.game_status = state["game_status"]
-        self.started = state["started"]
+        self.wrong_guesses = state["game_status"]
         # self.wordlist = ["DISTRIBUTED HANGMAN", "UNIVERSITY OF HELSINKI", "SUOMI FINLAND"]
         self.WORD = state["WORD"]  # e.g. self.wordlist[random.randint(0,2)]
-        self.board = state["board"]
         # which round / how many guesses made
         self.round = state["round"]
         # turn order as a list of player ids

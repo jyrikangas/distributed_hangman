@@ -3,11 +3,8 @@ import json
 import time
 import random
 import socket
-from dotenv import load_dotenv
 
-from backend.elect_leader import Decisions
 from objects.player import Player
-load_dotenv()
 
 OTHER_NODES = []
 tasks = []
@@ -18,7 +15,7 @@ host = ""
 def logger(message):
     with open("log.txt", "a") as file:
         file.write(f'{time.time()}:{message}\n')
-
+    
 async def state(target=OTHER_NODES):
     await send_info({'Command':'State', 'State': game.as_JSON()}, target)
 
@@ -60,7 +57,6 @@ async def listen_for_connections(host, port):
         await server.serve_forever()
 
 async def handle_client(reader, writer):
-
     while True:
         try:
             response = await reader.readline()
@@ -72,11 +68,13 @@ async def handle_client(reader, writer):
 
             decoded = json.loads(decoded_json)
 
+            #check if sender ip is stored in game. if not, add a new ip address for this name
             if decoded["from_ip"] not in game.playersbyaddress:
                 new_player = Player(decoded["from_ip"])
                 new_player.name = decoded["from_name"]
                 game.add_player(new_player)
 
+            #receive guess infromation and update game object
             if "Guess" == decoded["Command"]:
                 game.guess_letter(decoded["Letter"])
                 await send_info({'Command':'Response OK'})
@@ -84,6 +82,7 @@ async def handle_client(reader, writer):
             if "Response OK" == decoded["Command"]:
                 print("OK")
 
+            #Receive game object from another node and update own object accordingly
             if "State" == decoded["Command"]:
                 print("State")
                 names = []
@@ -103,11 +102,11 @@ async def handle_client(reader, writer):
                         new_player.create_name(game)
                         game.add_player(new_player)
                         await initiate_connection(player["ip"])
-                #for letter in message["guessed_letters"]:
-                    #game.guess_letter(letter)
+                        
                 if game.get_round() < message["round"]:
                     game.set_state(decoded["State"])
 
+            #initialize connection
             if "Connect" == decoded["Command"]:
                 OTHER_NODES.append((reader, writer))
                 addr = writer.get_extra_info('peername')
@@ -119,17 +118,9 @@ async def handle_client(reader, writer):
                         print(f"Player {addr} already in the game. Reconnecting...")
                         await state([(reader,writer)])
                         break
-                #new_player = Player(addr[0])
-                #new_player.create_name(game)
-
-                #game.add_player(new_player)
                 await state([(reader,writer)])
 
-            if "Election" == decoded["Command"]:
-                print("Election")
-                addr = writer.get_extra_info('peername')
-                logger(f"received election from {addr}")
-
+            #another player is ready, store the information in playerstates dictionary
             if "Ready" == decoded["Command"]:
                 print("Ready received")
                 name = decoded["from_name"]
@@ -138,6 +129,7 @@ async def handle_client(reader, writer):
                 playerstates[name] = True
                 print(playerstates)
 
+            #receive the number another node rolled in the election algorithm. store it in playerrolls dictionary
             if "ElectionRoll" == decoded["Command"]:
                 print("ElectionRoll")
                 roll = decoded["roll"]
@@ -148,18 +140,19 @@ async def handle_client(reader, writer):
 
                 playerrolls[name] = roll
 
+            #receives turnorder and print it for comparison and debugging.
             if "TurnOrder" == decoded["Command"]:
                 print("TurnOrder")
                 received_turnorder = decoded["turnorder"]
                 print(f"received {received_turnorder}, current {game.turnorder}")
                 if received_turnorder !=game.turnorder:
-                    print("!!CONFLICT!!")
-                    game.turnorder = received_turnorder
+                    print("Turnorders do not match!")
 
                 addr = writer.get_extra_info('peername')
                 print(f"Turn order received from {addr}")
                 logger(f"Turn order received from {addr}")
                 print(game.turnorder)
+                
         except ConnectionAbortedError as e:
             print(f"Connection error on {writer.get_extra_info('peername')}")
             OTHER_NODES.remove((reader, writer))
@@ -191,12 +184,7 @@ async def initiate_connection(target_host, target_port = "1999"):
 
 
 async def decide_order(game):
-    #send message to all players to elect leader
-    print("Deciding order")
-    await send_info({'Command': 'Election'})
-
-    #await ready
-    print("awaiting ready")
+    print("waiting for other nodes to send ready message")
     while True:
         print(playerstates)
         await asyncio.sleep(3)
@@ -204,17 +192,13 @@ async def decide_order(game):
         if len(playerstates) == len(game.players)-1:
             print("all players ready")
             break
-
-    #after all players are ready, or 30 s have passed, start
+        
+    #send random number between 1 and 10000
     randomint = random.randint(1, 10000)
     playerrolls[game.playersbyaddress[host].name] = randomint
-
-    #send random number between 1 and 10000
     print(f"sending random number {randomint}")
     await send_info({'Command': 'ElectionRoll', 'roll': randomint})
-
-    #check who has the largest number
-    await asyncio.sleep(1)
+    
     while True:
         await asyncio.sleep(1)
         print(playerrolls)
@@ -223,12 +207,11 @@ async def decide_order(game):
             print("all players have rolled")
             break
     print(playerrolls)
+    
+    #sort the numbers given by all the nodes to get the turnorder
     sort = sorted(playerrolls.items(), key=lambda x: x[1], reverse=True)
     print(sort)
-    print()
     game.turnorder = [player[0] for player in sort]
-    #tiebreaker based on ip
-    #send turn order to all players
     print("sending turn order")
     await send_info({'Command': 'TurnOrder', 'turnorder': game.turnorder})
     print("turn order sent")
